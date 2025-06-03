@@ -1,1190 +1,1450 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>US Election Simulator 2024</title>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: #333;
-            overflow-x: hidden;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .game-header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        
-        .game-title {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #1e3c72;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        
-        .stats-bar {
-            display: flex;
-            gap: 30px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        
-        .stat-item {
-            text-align: center;
-        }
-        
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #2a5298;
-        }
-        
-        .stat-label {
-            font-size: 0.9rem;
-            color: #666;
-        }
-        
-        .main-content {
-            display: grid;
-            grid-template-columns: 300px 1fr 300px;
-            gap: 20px;
-            min-height: 70vh;
-        }
-        
-        .sidebar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            height: fit-content;
-        }
-        
-        .central-panel {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-        
-        .section-title {
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: #1e3c72;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #e0e0e0;
-            padding-bottom: 5px;
-        }
-        
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            margin: 5px;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        }
-        
-        .btn-danger {
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-        }
-        
-        .btn-success {
-            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-            color: #333;
-        }
-        
-        .electoral-map {
-            width: 100%;
-            height: 400px;
-            background: #f8f9fa;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .state-square {
-            position: absolute;
-            border: 1px solid #ccc;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .state-square:hover {
-            transform: scale(1.1);
-            z-index: 10;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-        
-        .safe-d { background-color: #1e40af; color: white; }
-        .lean-d { background-color: #60a5fa; color: white; }
-        .toss-up { background-color: #fbbf24; color: #333; }
-        .lean-r { background-color: #f87171; color: white; }
-        .safe-r { background-color: #dc2626; color: white; }
-        
-        .poll-chart {
-            height: 200px;
-            margin: 20px 0;
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 10px;
-        }
-        
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            max-width: 600px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-        
-        .setup-form {
-            display: grid;
-            gap: 20px;
-        }
-        
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        
-        .form-label {
-            font-weight: bold;
-            color: #1e3c72;
-        }
-        
-        .form-input {
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-        
-        .form-select {
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1rem;
-            background: white;
-        }
-        
-        .platform-builder {
-            display: grid;
-            gap: 15px;
-        }
-        
-        .issue-group {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #e0e0e0;
-        }
-        
-        .issue-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #1e3c72;
-        }
-        
-        .position-options {
-            display: grid;
-            gap: 10px;
-        }
-        
-        .position-option {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .position-option:hover {
-            background-color: #e3f2fd;
-        }
-        
-        .position-option input[type="radio"] {
-            margin: 0;
-        }
-        
-        .news-feed {
-            max-height: 300px;
-            overflow-y: auto;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 10px;
-        }
-        
-        .news-item {
-            padding: 10px;
-            border-bottom: 1px solid #f0f0f0;
-            transition: background-color 0.2s;
-        }
-        
-        .news-item:hover {
-            background-color: #f8f9fa;
-        }
-        
-        .news-item:last-child {
-            border-bottom: none;
-        }
-        
-        .news-date {
-            font-size: 0.8rem;
-            color: #666;
-            margin-bottom: 5px;
-        }
-        
-        .spending-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-        
-        .spending-category {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #e0e0e0;
-        }
-        
-        .spending-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #1e3c72;
-        }
-        
-        .spending-slider {
-            width: 100%;
-            margin: 10px 0;
-        }
-        
-        .spending-amount {
-            font-weight: bold;
-            color: #2a5298;
-        }
-        
-        .poll-breakdown {
-            display: grid;
-            gap: 10px;
-            margin: 15px 0;
-        }
-        
-        .poll-state {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 12px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #2a5298;
-        }
-        
-        .state-name {
-            font-weight: bold;
-        }
-        
-        .poll-margin {
-            font-weight: bold;
-            color: #1e3c72;
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 20px;
-            background: #e0e0e0;
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 10px 0;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
-            transition: width 0.3s ease;
-        }
-        
-        .ev-counter {
-            display: flex;
-            justify-content: space-around;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-        
-        .ev-item {
-            text-align: center;
-        }
-        
-        .ev-number {
-            font-size: 2rem;
-            font-weight: bold;
-        }
-        
-        .ev-label {
-            font-size: 0.9rem;
-            color: #666;
-        }
-        
-        .dem-ev { color: #1e40af; }
-        .rep-ev { color: #dc2626; }
-        .toss-ev { color: #f59e0b; }
-        
-        @media (max-width: 1200px) {
-            .main-content {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-            
-            .stats-bar {
-                justify-content: center;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .game-header {
-                flex-direction: column;
-                gap: 20px;
-                text-align: center;
-            }
-            
-            .stats-bar {
-                gap: 15px;
-            }
-            
-            .electoral-map {
-                height: 300px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>US Election Simulator 2024 (Enhanced)</title>
+
+  <!-- React, ReactDOM, Babel for JSX -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- D3 for SVG mapping + tooltips -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+
+  <!-- Lodash for utilities -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+
+  <!-- seedrandom for reproducible randomness -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .game-header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .game-title {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #1e3c72;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .stats-bar {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #2a5298;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 300px 1fr 300px;
+      gap: 20px;
+      min-height: 70vh;
+    }
+
+    .sidebar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      height: fit-content;
+    }
+
+    .central-panel {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #1e3c72;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #e0e0e0;
+      padding-bottom: 5px;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      margin: 5px 0;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+      color: #333;
+    }
+
+    .electoral-map {
+      width: 100%;
+      height: 400px;
+      background: #f8f9fa;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* State squares get colored by category */
+    .state-square {
+      position: absolute;
+      border: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .state-square:hover {
+      transform: scale(1.1);
+      z-index: 10;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .safe-d { background-color: #1e40af; color: white; }
+    .lean-d { background-color: #60a5fa; color: white; }
+    .toss-up { background-color: #fbbf24; color: #333; }
+    .lean-r { background-color: #f87171; color: white; }
+    .safe-r { background-color: #dc2626; color: white; }
+
+    .poll-chart {
+      height: 200px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .setup-form {
+      display: grid;
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-label {
+      font-weight: bold;
+      color: #1e3c72;
+    }
+
+    .form-input, .form-select {
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      background: white;
+    }
+
+    .platform-builder {
+      display: grid;
+      gap: 15px;
+    }
+
+    .issue-group {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid #e0e0e0;
+    }
+
+    .issue-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #1e3c72;
+    }
+
+    .position-options {
+      display: grid;
+      gap: 10px;
+    }
+
+    .position-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .position-option:hover {
+      background-color: #e3f2fd;
+    }
+
+    .position-option input[type="radio"] {
+      margin: 0;
+    }
+
+    .news-feed {
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .news-item {
+      padding: 10px;
+      border-bottom: 1px solid #f0f0f0;
+      transition: background-color 0.2s;
+    }
+
+    .news-item:hover {
+      background-color: #f8f9fa;
+    }
+
+    .news-item:last-child {
+      border-bottom: none;
+    }
+
+    .news-date {
+      font-size: 0.8rem;
+      color: #666;
+      margin-bottom: 5px;
+    }
+
+    .spending-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .spending-category {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid #e0e0e0;
+    }
+
+    .spending-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #1e3c72;
+    }
+
+    .spending-slider {
+      width: 100%;
+      margin: 10px 0;
+    }
+
+    .spending-amount {
+      font-weight: bold;
+      color: #2a5298;
+    }
+
+    .poll-breakdown {
+      display: grid;
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    .poll-state {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-left: 4px solid #2a5298;
+    }
+
+    .state-name {
+      font-weight: bold;
+    }
+
+    .poll-margin {
+      font-weight: bold;
+      color: #1e3c72;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 20px;
+      background: #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+      transition: width 0.3s ease;
+    }
+
+    .ev-counter {
+      display: flex;
+      justify-content: space-around;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+
+    .ev-item {
+      text-align: center;
+    }
+
+    .ev-number {
+      font-size: 2rem;
+      font-weight: bold;
+    }
+
+    .ev-label {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .dem-ev { color: #1e40af; }
+    .rep-ev { color: #dc2626; }
+    .toss-ev { color: #f59e0b; }
+
+    /* New: Demographic Breakdown Panel */
+    .demo-panel {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 15px;
+      border: 1px solid #e0e0e0;
+    }
+    .demo-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .demo-label {
+      font-weight: bold;
+      color: #1e3c72;
+    }
+    .demo-value {
+      font-weight: bold;
+      color: #2a5298;
+    }
+
+    /* Tooltip for states */
+    #tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      z-index: 10000;
+      visibility: hidden;
+    }
+
+    @media (max-width: 1200px) {
+      .main-content {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+      .stats-bar {
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+      .game-header {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+      }
+      .stats-bar {
+        gap: 15px;
+      }
+      .electoral-map {
+        height: 300px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-    <div id="root"></div>
+  <div id="root"></div>
+  <!-- Tooltip div -->
+  <div id="tooltip"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect, useCallback, useMemo } = React;
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
 
-        // Real state data with electoral votes and demographics
-        const STATES_DATA = {
-            'AL': { name: 'Alabama', ev: 9, pvi: 15, region: 'South' },
-            'AK': { name: 'Alaska', ev: 3, pvi: 9, region: 'West' },
-            'AZ': { name: 'Arizona', ev: 11, pvi: 2, region: 'West' },
-            'AR': { name: 'Arkansas', ev: 6, pvi: 16, region: 'South' },
-            'CA': { name: 'California', ev: 54, pvi: -15, region: 'West' },
-            'CO': { name: 'Colorado', ev: 10, pvi: -4, region: 'West' },
-            'CT': { name: 'Connecticut', ev: 7, pvi: -7, region: 'Northeast' },
-            'DE': { name: 'Delaware', ev: 3, pvi: -7, region: 'Northeast' },
-            'FL': { name: 'Florida', ev: 30, pvi: 3, region: 'South' },
-            'GA': { name: 'Georgia', ev: 16, pvi: 3, region: 'South' },
-            'HI': { name: 'Hawaii', ev: 4, pvi: -18, region: 'West' },
-            'ID': { name: 'Idaho', ev: 4, pvi: 31, region: 'West' },
-            'IL': { name: 'Illinois', ev: 19, pvi: -8, region: 'Midwest' },
-            'IN': { name: 'Indiana', ev: 11, pvi: 11, region: 'Midwest' },
-            'IA': { name: 'Iowa', ev: 6, pvi: 6, region: 'Midwest' },
-            'KS': { name: 'Kansas', ev: 6, pvi: 13, region: 'Midwest' },
-            'KY': { name: 'Kentucky', ev: 8, pvi: 16, region: 'South' },
-            'LA': { name: 'Louisiana', ev: 8, pvi: 12, region: 'South' },
-            'ME': { name: 'Maine', ev: 4, pvi: -3, region: 'Northeast' },
-            'MD': { name: 'Maryland', ev: 10, pvi: -13, region: 'Northeast' },
-            'MA': { name: 'Massachusetts', ev: 11, pvi: -15, region: 'Northeast' },
-            'MI': { name: 'Michigan', ev: 15, pvi: -1, region: 'Midwest' },
-            'MN': { name: 'Minnesota', ev: 10, pvi: -2, region: 'Midwest' },
-            'MS': { name: 'Mississippi', ev: 6, pvi: 11, region: 'South' },
-            'MO': { name: 'Missouri', ev: 10, pvi: 10, region: 'Midwest' },
-            'MT': { name: 'Montana', ev: 4, pvi: 11, region: 'West' },
-            'NE': { name: 'Nebraska', ev: 5, pvi: 14, region: 'Midwest' },
-            'NV': { name: 'Nevada', ev: 6, pvi: -1, region: 'West' },
-            'NH': { name: 'New Hampshire', ev: 4, pvi: -1, region: 'Northeast' },
-            'NJ': { name: 'New Jersey', ev: 14, pvi: -6, region: 'Northeast' },
-            'NM': { name: 'New Mexico', ev: 5, pvi: -3, region: 'West' },
-            'NY': { name: 'New York', ev: 28, pvi: -10, region: 'Northeast' },
-            'NC': { name: 'North Carolina', ev: 16, pvi: 3, region: 'South' },
-            'ND': { name: 'North Dakota', ev: 3, pvi: 20, region: 'Midwest' },
-            'OH': { name: 'Ohio', ev: 17, pvi: 6, region: 'Midwest' },
-            'OK': { name: 'Oklahoma', ev: 7, pvi: 20, region: 'South' },
-            'OR': { name: 'Oregon', ev: 8, pvi: -6, region: 'West' },
-            'PA': { name: 'Pennsylvania', ev: 19, pvi: -1, region: 'Northeast' },
-            'RI': { name: 'Rhode Island', ev: 4, pvi: -13, region: 'Northeast' },
-            'SC': { name: 'South Carolina', ev: 9, pvi: 8, region: 'South' },
-            'SD': { name: 'South Dakota', ev: 3, pvi: 14, region: 'Midwest' },
-            'TN': { name: 'Tennessee', ev: 11, pvi: 14, region: 'South' },
-            'TX': { name: 'Texas', ev: 40, pvi: 5, region: 'South' },
-            'UT': { name: 'Utah', ev: 6, pvi: 13, region: 'West' },
-            'VT': { name: 'Vermont', ev: 3, pvi: -16, region: 'Northeast' },
-            'VA': { name: 'Virginia', ev: 13, pvi: -2, region: 'South' },
-            'WA': { name: 'Washington', ev: 12, pvi: -8, region: 'West' },
-            'WV': { name: 'West Virginia', ev: 4, pvi: 23, region: 'South' },
-            'WI': { name: 'Wisconsin', ev: 10, pvi: -1, region: 'Midwest' },
-            'WY': { name: 'Wyoming', ev: 3, pvi: 25, region: 'West' },
-            'DC': { name: 'Washington DC', ev: 3, pvi: -43, region: 'Northeast' }
+    // 1) Real state data with electoral votes and demographics
+    const STATES_DATA = {
+      AL: { name: 'Alabama', ev: 9, pvi: 15, region: 'South' },
+      AK: { name: 'Alaska', ev: 3, pvi: 9, region: 'West' },
+      AZ: { name: 'Arizona', ev: 11, pvi: 2, region: 'West' },
+      AR: { name: 'Arkansas', ev: 6, pvi: 16, region: 'South' },
+      CA: { name: 'California', ev: 54, pvi: -15, region: 'West' },
+      CO: { name: 'Colorado', ev: 10, pvi: -4, region: 'West' },
+      CT: { name: 'Connecticut', ev: 7, pvi: -7, region: 'Northeast' },
+      DE: { name: 'Delaware', ev: 3, pvi: -7, region: 'Northeast' },
+      FL: { name: 'Florida', ev: 30, pvi: 3, region: 'South' },
+      GA: { name: 'Georgia', ev: 16, pvi: 3, region: 'South' },
+      HI: { name: 'Hawaii', ev: 4, pvi: -18, region: 'West' },
+      ID: { name: 'Idaho', ev: 4, pvi: 31, region: 'West' },
+      IL: { name: 'Illinois', ev: 19, pvi: -8, region: 'Midwest' },
+      IN: { name: 'Indiana', ev: 11, pvi: 11, region: 'Midwest' },
+      IA: { name: 'Iowa', ev: 6, pvi: 6, region: 'Midwest' },
+      KS: { name: 'Kansas', ev: 6, pvi: 13, region: 'Midwest' },
+      KY: { name: 'Kentucky', ev: 8, pvi: 16, region: 'South' },
+      LA: { name: 'Louisiana', ev: 8, pvi: 12, region: 'South' },
+      ME: { name: 'Maine', ev: 4, pvi: -3, region: 'Northeast' },
+      MD: { name: 'Maryland', ev: 10, pvi: -13, region: 'Northeast' },
+      MA: { name: 'Massachusetts', ev: 11, pvi: -15, region: 'Northeast' },
+      MI: { name: 'Michigan', ev: 15, pvi: -1, region: 'Midwest' },
+      MN: { name: 'Minnesota', ev: 10, pvi: -2, region: 'Midwest' },
+      MS: { name: 'Mississippi', ev: 6, pvi: 11, region: 'South' },
+      MO: { name: 'Missouri', ev: 10, pvi: 10, region: 'Midwest' },
+      MT: { name: 'Montana', ev: 4, pvi: 11, region: 'West' },
+      NE: { name: 'Nebraska', ev: 5, pvi: 14, region: 'Midwest' },
+      NV: { name: 'Nevada', ev: 6, pvi: -1, region: 'West' },
+      NH: { name: 'New Hampshire', ev: 4, pvi: -1, region: 'Northeast' },
+      NJ: { name: 'New Jersey', ev: 14, pvi: -6, region: 'Northeast' },
+      NM: { name: 'New Mexico', ev: 5, pvi: -3, region: 'West' },
+      NY: { name: 'New York', ev: 28, pvi: -10, region: 'Northeast' },
+      NC: { name: 'North Carolina', ev: 16, pvi: 3, region: 'South' },
+      ND: { name: 'North Dakota', ev: 3, pvi: 20, region: 'Midwest' },
+      OH: { name: 'Ohio', ev: 17, pvi: 6, region: 'Midwest' },
+      OK: { name: 'Oklahoma', ev: 7, pvi: 20, region: 'South' },
+      OR: { name: 'Oregon', ev: 8, pvi: -6, region: 'West' },
+      PA: { name: 'Pennsylvania', ev: 19, pvi: -1, region: 'Northeast' },
+      RI: { name: 'Rhode Island', ev: 4, pvi: -13, region: 'Northeast' },
+      SC: { name: 'South Carolina', ev: 9, pvi: 8, region: 'South' },
+      SD: { name: 'South Dakota', ev: 3, pvi: 14, region: 'Midwest' },
+      TN: { name: 'Tennessee', ev: 11, pvi: 14, region: 'South' },
+      TX: { name: 'Texas', ev: 40, pvi: 5, region: 'South' },
+      UT: { name: 'Utah', ev: 6, pvi: 13, region: 'West' },
+      VT: { name: 'Vermont', ev: 3, pvi: -16, region: 'Northeast' },
+      VA: { name: 'Virginia', ev: 13, pvi: -2, region: 'South' },
+      WA: { name: 'Washington', ev: 12, pvi: -8, region: 'West' },
+      WV: { name: 'West Virginia', ev: 4, pvi: 23, region: 'South' },
+      WI: { name: 'Wisconsin', ev: 10, pvi: -1, region: 'Midwest' },
+      WY: { name: 'Wyoming', ev: 3, pvi: 25, region: 'West' },
+      DC: { name: 'Washington DC', ev: 3, pvi: -43, region: 'Northeast' }
+    };
+
+    // 2) Issues + positions + “effects by demographic” (unchanged from original)
+    const ISSUES = [
+      {
+        id: 'economy',
+        name: 'Economy',
+        positions: [
+          {
+            id: 'progressive',
+            name: 'Progressive Tax & Spending',
+            effects: { young: 4, college: 3, urban: 3, rural: -2, business: -4 }
+          },
+          {
+            id: 'moderate',
+            name: 'Balanced Approach',
+            effects: { moderate: 2, suburban: 2 }
+          },
+          {
+            id: 'conservative',
+            name: 'Tax Cuts & Deregulation',
+            effects: { business: 4, rural: 3, wealthy: 4, young: -2, union: -3 }
+          }
+        ]
+      },
+      {
+        id: 'healthcare',
+        name: 'Healthcare',
+        positions: [
+          {
+            id: 'medicare_all',
+            name: 'Medicare for All',
+            effects: { young: 5, black: 4, hispanic: 3, rural: -2, wealthy: -3 }
+          },
+          {
+            id: 'public_option',
+            name: 'Public Option',
+            effects: { college: 3, suburban: 2, moderate: 3 }
+          },
+          {
+            id: 'market_based',
+            name: 'Market-based Solutions',
+            effects: { business: 4, wealthy: 3, rural: 2, young: -3 }
+          }
+        ]
+      },
+      {
+        id: 'immigration',
+        name: 'Immigration',
+        positions: [
+          {
+            id: 'pathway',
+            name: 'Pathway to Citizenship',
+            effects: { hispanic: 6, young: 3, urban: 3, rural: -3, white_nc: -2 }
+          },
+          {
+            id: 'reform',
+            name: 'Comprehensive Reform',
+            effects: { moderate: 2, suburban: 1, college: 2 }
+          },
+          {
+            id: 'enforcement',
+            name: 'Border Security First',
+            effects: { rural: 4, white_nc: 3, business: 2, hispanic: -4, young: -2 }
+          }
+        ]
+      },
+      {
+        id: 'climate',
+        name: 'Climate Change',
+        positions: [
+          {
+            id: 'green_deal',
+            name: 'Green New Deal',
+            effects: { young: 5, college: 4, urban: 3, rural: -3, business: -2 }
+          },
+          {
+            id: 'clean_energy',
+            name: 'Clean Energy Investment',
+            effects: { suburban: 3, moderate: 2, college: 2 }
+          },
+          {
+            id: 'market_solutions',
+            name: 'Market-based Solutions',
+            effects: { business: 3, wealthy: 2, rural: 1, young: -2 }
+          }
+        ]
+      },
+      {
+        id: 'guns',
+        name: 'Gun Policy',
+        positions: [
+          {
+            id: 'gun_control',
+            name: 'Comprehensive Gun Control',
+            effects: { urban: 4, black: 3, suburban: 2, rural: -4, white_nc: -2 }
+          },
+          {
+            id: 'background_checks',
+            name: 'Universal Background Checks',
+            effects: { moderate: 3, suburban: 3, college: 2 }
+          },
+          {
+            id: 'second_amendment',
+            name: 'Protect 2nd Amendment',
+            effects: { rural: 5, white_nc: 3, business: 2, urban: -3, black: -2 }
+          }
+        ]
+      }
+    ];
+
+    // 3) Random events
+    const EVENTS = [
+      {
+        id: 'debate_performance',
+        name: 'Debate Performance',
+        description: 'How did you perform in the latest debate?',
+        choices: [
+          { text: 'Dominated the stage', effects: { polling: 3, fundraising: 0.2, credibility: 1 } },
+          { text: 'Solid performance', effects: { polling: 1, fundraising: 0.1, credibility: 0 } },
+          { text: 'Had some rough moments', effects: { polling: -1, fundraising: -0.05, credibility: -1 } }
+        ]
+      },
+      {
+        id: 'economic_news',
+        name: 'Economic Report Released',
+        description: 'New economic data has been released. How do you respond?',
+        choices: [
+          { text: 'Credit your policies', effects: { polling: 2, credibility: 1 } },
+          { text: 'Call for more action', effects: { polling: 1, fundraising: 0.1 } },
+          { text: 'Blame the opposition', effects: { polling: -1, credibility: -1 } }
+        ]
+      },
+      {
+        id: 'endorsement',
+        name: 'Major Endorsement Opportunity',
+        description: 'A prominent figure offers their endorsement. Do you accept?',
+        choices: [
+          { text: 'Accept enthusiastically', effects: { polling: 2, fundraising: 0.15, credibility: 0 } },
+          { text: 'Accept with conditions', effects: { polling: 1, credibility: 1 } },
+          { text: 'Politely decline', effects: { credibility: 2, fundraising: -0.05 } }
+        ]
+      }
+    ];
+
+    // 4) Basic list of all possible demographics we track (for demo breakdown)
+    const ALL_DEMOS = [
+      'young', 'college', 'urban', 'rural', 'business',
+      'wealthy', 'black', 'hispanic', 'moderate', 'suburban',
+      'white_nc', 'union'
+    ];
+
+    // 5) Game state management (with stamina & focus-group)
+    class GameState {
+      constructor() {
+        this.rng = new Math.seedrandom('election2024');
+        this.reset();
+      }
+
+      reset() {
+        this.gameStarted = false;
+        this.currentDay = 1;
+        this.totalDays = 180; // ~6 months
+        this.candidate = {
+          name: '',
+          party: 'Democratic',
+          funds: 5000000,    // Start with $5M
+          platform: {},       // { issueId: positionId }
+          polling: {},        // { stateAbbr: demPct }
+          momentum: 0,        // used to boost weekly fundraising
+          stamina: 100        // stamina out of 100; decays with travel spending
         };
+        this.opponent = {
+          name: 'Generic Opponent',
+          party: 'Republican',
+          polling: {}
+        };
+        this.spending = {
+          advertising: 0,
+          ground_game: 0,
+          travel: 0,
+          staff: 0
+        };
+        this.events = [];
+        this.newsItems = [];
+        this.initializePolling();
+      }
 
-        const ISSUES = [
-            {
-                id: 'economy',
-                name: 'Economy',
-                positions: [
-                    { id: 'progressive', name: 'Progressive Tax & Spending', effects: { young: 4, college: 3, urban: 3, rural: -2, business: -4 } },
-                    { id: 'moderate', name: 'Balanced Approach', effects: { moderate: 2, suburban: 2 } },
-                    { id: 'conservative', name: 'Tax Cuts & Deregulation', effects: { business: 4, rural: 3, wealthy: 4, young: -2, union: -3 } }
-                ]
-            },
-            {
-                id: 'healthcare',
-                name: 'Healthcare',
-                positions: [
-                    { id: 'medicare_all', name: 'Medicare for All', effects: { young: 5, black: 4, hispanic: 3, rural: -2, wealthy: -3 } },
-                    { id: 'public_option', name: 'Public Option', effects: { college: 3, suburban: 2, moderate: 3 } },
-                    { id: 'market_based', name: 'Market-based Solutions', effects: { business: 4, wealthy: 3, rural: 2, young: -3 } }
-                ]
-            },
-            {
-                id: 'immigration',
-                name: 'Immigration',
-                positions: [
-                    { id: 'pathway', name: 'Pathway to Citizenship', effects: { hispanic: 6, young: 3, urban: 3, rural: -3, white_nc: -2 } },
-                    { id: 'reform', name: 'Comprehensive Reform', effects: { moderate: 2, suburban: 1, college: 2 } },
-                    { id: 'enforcement', name: 'Border Security First', effects: { rural: 4, white_nc: 3, business: 2, hispanic: -4, young: -2 } }
-                ]
-            },
-            {
-                id: 'climate',
-                name: 'Climate Change',
-                positions: [
-                    { id: 'green_deal', name: 'Green New Deal', effects: { young: 5, college: 4, urban: 3, rural: -3, business: -2 } },
-                    { id: 'clean_energy', name: 'Clean Energy Investment', effects: { suburban: 3, moderate: 2, college: 2 } },
-                    { id: 'market_solutions', name: 'Market-based Solutions', effects: { business: 3, wealthy: 2, rural: 1, young: -2 } }
-                ]
-            },
-            {
-                id: 'guns',
-                name: 'Gun Policy',
-                positions: [
-                    { id: 'gun_control', name: 'Comprehensive Gun Control', effects: { urban: 4, black: 3, suburban: 2, rural: -4, white_nc: -2 } },
-                    { id: 'background_checks', name: 'Universal Background Checks', effects: { moderate: 3, suburban: 3, college: 2 } },
-                    { id: 'second_amendment', name: 'Protect 2nd Amendment', effects: { rural: 5, white_nc: 3, business: 2, urban: -3, black: -2 } }
-                ]
+      initializePolling() {
+        Object.keys(STATES_DATA).forEach(state => {
+          const sd = STATES_DATA[state];
+          const baseDem = 50 - sd.pvi / 2;
+          const noise = (this.rng() - 0.5) * 10; // ±5%
+          const dem = Math.max(25, Math.min(75, baseDem + noise));
+          const rep = 100 - dem;
+          this.candidate.polling[state] = dem;
+          this.opponent.polling[state] = rep;
+        });
+      }
+
+      setPlatform(platform) {
+        this.candidate.platform = platform;
+        this.applyPlatformEffects();
+      }
+
+      applyPlatformEffects() {
+        // For each state, sum up effects from each chosen position
+        Object.keys(STATES_DATA).forEach(state => {
+          let totalEffect = 0;
+          Object.keys(this.candidate.platform).forEach(issueId => {
+            const posId = this.candidate.platform[issueId];
+            const issue = ISSUES.find(i => i.id === issueId);
+            const posData = issue.positions.find(p => p.id === posId);
+            if (posData && posData.effects) {
+              Object.keys(posData.effects).forEach(demo => {
+                totalEffect += posData.effects[demo] * 0.3; // scale factor
+              });
             }
-        ];
+          });
+          const noise = (this.rng() - 0.5) * 2; // ±1
+          const newDem = Math.max(
+            20,
+            Math.min(80, this.candidate.polling[state] + totalEffect + noise)
+          );
+          this.candidate.polling[state] = newDem;
+          this.opponent.polling[state] = 100 - newDem;
+        });
+      }
 
-        const EVENTS = [
-            {
-                id: 'debate_performance',
-                name: 'Debate Performance',
-                description: 'How did you perform in the latest debate?',
-                choices: [
-                    { text: 'Dominated the stage', effects: { polling: 3, fundraising: 0.2 } },
-                    { text: 'Solid performance', effects: { polling: 1, fundraising: 0.1 } },
-                    { text: 'Had some rough moments', effects: { polling: -1, fundraising: -0.05 } }
-                ]
-            },
-            {
-                id: 'economic_news',
-                name: 'Economic Report Released',
-                description: 'New economic data has been released. How do you respond?',
-                choices: [
-                    { text: 'Credit your policies', effects: { polling: 2, credibility: 1 } },
-                    { text: 'Call for more action', effects: { polling: 1, fundraising: 0.1 } },
-                    { text: 'Blame the opposition', effects: { polling: -1, credibility: -1 } }
-                ]
-            },
-            {
-                id: 'endorsement',
-                name: 'Major Endorsement Opportunity',
-                description: 'A prominent figure offers their endorsement. Do you accept?',
-                choices: [
-                    { text: 'Accept enthusiastically', effects: { polling: 2, fundraising: 0.15 } },
-                    { text: 'Accept with conditions', effects: { polling: 1, credibility: 1 } },
-                    { text: 'Politely decline', effects: { credibility: 2, fundraising: -0.05 } }
-                ]
-            }
-        ];
+      allocateSpending(spend) {
+        const total = Object.values(spend).reduce((sum, v) => sum + v, 0);
+        if (total <= this.candidate.funds) {
+          this.spending = { ...spend };
+          this.candidate.funds -= total;
+          this.applySpendingEffects();
+          return true;
+        }
+        return false;
+      }
 
-        // Game state management
-        class GameState {
-            constructor() {
-                this.rng = new Math.seedrandom('election2024');
-                this.reset();
-            }
+      applySpendingEffects() {
+        // Advertising → + polling, ground_game → + polling, travel → -stamina, staff → +momentum
+        const advBoost = this.spending.advertising / 1000000;   // $1M → +1%
+        const groundBoost = this.spending.ground_game / 2000000; // $2M → +1%
+        const staffBoost = this.spending.staff / 500000;        // $500K → +1 momentum
+        const travelCost = this.spending.travel / 1000000 * 5;  // $1M travel → -5 stamina
 
-            reset() {
-                this.gameStarted = false;
-                this.currentDay = 1;
-                this.totalDays = 180; // ~6 months campaign
-                
-                this.candidate = {
-                    name: '',
-                    party: 'Democratic',
-                    funds: 5000000, // Start with $5M
-                    platform: {},
-                    polling: {},
-                    momentum: 0
-                };
+        // Adjust stamina
+        this.candidate.stamina = Math.max(0, this.candidate.stamina - travelCost);
 
-                this.opponent = {
-                    name: 'Generic Opponent',
-                    party: 'Republican',
-                    polling: {}
-                };
+        // If stamina is low (<30), penalize polling by 0.5%
+        const staminaPenalty = this.candidate.stamina < 30 ? -0.5 : 0;
 
-                this.spending = {
-                    advertising: 0,
-                    ground_game: 0,
-                    travel: 0,
-                    staff: 0
-                };
+        Object.keys(this.candidate.polling).forEach(state => {
+          const effect = advBoost + groundBoost + (this.rng() - 0.5) + staminaPenalty;
+          const newDem = Math.max(
+            20,
+            Math.min(80, this.candidate.polling[state] + effect)
+          );
+          this.candidate.polling[state] = newDem;
+          this.opponent.polling[state] = 100 - newDem;
+        });
 
-                this.events = [];
-                this.newsItems = [];
-                
-                this.initializePolling();
-            }
+        // Staff → momentum
+        this.candidate.momentum += staffBoost;
+      }
 
-            initializePolling() {
-                // Initialize polling based on state PVI and random factors
-                Object.keys(STATES_DATA).forEach(state => {
-                    const stateData = STATES_DATA[state];
-                    const baseDemShare = 50 - (stateData.pvi / 2); // Convert PVI to base support
-                    const noise = (this.rng() - 0.5) * 10; // Random noise ±5%
-                    
-                    const demPoll = Math.max(25, Math.min(75, baseDemShare + noise));
-                    const repPoll = 100 - demPoll;
-                    
-                    this.candidate.polling[state] = demPoll;
-                    this.opponent.polling[state] = repPoll;
-                });
-            }
-
-            setPlatform(platform) {
-                this.candidate.platform = platform;
-                this.applyPlatformEffects();
-            }
-
-            applyPlatformEffects() {
-                // Apply platform effects to polling
-                Object.keys(STATES_DATA).forEach(state => {
-                    let totalEffect = 0;
-                    
-                    Object.keys(this.candidate.platform).forEach(issueId => {
-                        const position = this.candidate.platform[issueId];
-                        const issue = ISSUES.find(i => i.id === issueId);
-                        const positionData = issue.positions.find(p => p.id === position);
-                        
-                        if (positionData && positionData.effects) {
-                            // Apply demographic effects (simplified)
-                            Object.keys(positionData.effects).forEach(demo => {
-                                totalEffect += positionData.effects[demo] * 0.3; // Scale down effect
-                            });
-                        }
-                    });
-                    
-                    // Apply effect with some randomness
-                    const effectNoise = (this.rng() - 0.5) * 2;
-                    this.candidate.polling[state] = Math.max(20, Math.min(80, 
-                        this.candidate.polling[state] + totalEffect + effectNoise));
-                    this.opponent.polling[state] = 100 - this.candidate.polling[state];
-                });
-            }
-
-            allocateSpending(spending) {
-                const total = Object.values(spending).reduce((sum, val) => sum + val, 0);
-                if (total <= this.candidate.funds) {
-                    this.spending = { ...spending };
-                    this.candidate.funds -= total;
-                    this.applySpendingEffects();
-                    return true;
-                }
-                return false;
-            }
-
-            applySpendingEffects() {
-                // Apply spending effects to polling
-                const adEffect = this.spending.advertising / 1000000; // $1M = 1% boost
-                const groundEffect = this.spending.ground_game / 2000000; // $2M = 1% boost
-                
-                Object.keys(this.candidate.polling).forEach(state => {
-                    const stateEffect = adEffect + groundEffect + (this.rng() - 0.5);
-                    this.candidate.polling[state] = Math.max(20, Math.min(80, 
-                        this.candidate.polling[state] + stateEffect));
-                    this.opponent.polling[state] = 100 - this.candidate.polling[state];
-                });
-            }
-
-            advanceDay() {
-                this.currentDay++;
-                
-                // Weekly fundraising
-                if (this.currentDay % 7 === 0) {
-                    const baseFundraising = 500000;
-                    const momentumBonus = this.candidate.momentum * 100000;
-                    const newFunds = baseFundraising + momentumBonus + (this.rng() * 200000);
-                    this.candidate.funds += newFunds;
-                    
-                    this.addNewsItem(Raised $${(newFunds/1000).toFixed(0)}K this week);
-                }
-                
-                // Random events
-                if (this.rng() < 0.1 && this.events.length === 0) { // 10% chance per day
-                    const event = EVENTS[Math.floor(this.rng() * EVENTS.length)];
-                    this.events.push(event);
-                }
-                
-                // Polling drift
-                this.applyPollingDrift();
-            }
-
-            applyPollingDrift() {
-                Object.keys(this.candidate.polling).forEach(state => {
-                    const drift = (this.rng() - 0.5) * 0.5; // Small daily drift
-                    this.candidate.polling[state] = Math.max(20, Math.min(80, 
-                        this.candidate.polling[state] + drift));
-                    this.opponent.polling[state] = 100 - this.candidate.polling[state];
-                });
-            }
-        // Continue from GameState.handleEvent
-            handleEvent(eventId, choiceIndex) {
-                const eventIndex = this.events.findIndex(e => e.id === eventId);
-                if (eventIndex === -1) return;
-                const event = this.events[eventIndex];
-                const choice = event.choices[choiceIndex];
-                if (!choice) return;
-                
-                // Apply effects
-                const { effects } = choice;
-                if (effects.polling) {
-                    Object.keys(this.candidate.polling).forEach(state => {
-                        this.candidate.polling[state] = Math.max(
-                            20,
-                            Math.min(
-                                80,
-                                this.candidate.polling[state] + effects.polling + (this.rng() - 0.5)
-                            )
-                        );
-                        this.opponent.polling[state] = 100 - this.candidate.polling[state];
-                    });
-                }
-                if (effects.fundraising) {
-                    const raised = this.candidate.funds * effects.fundraising;
-                    this.candidate.funds += raised;
-                    this.addNewsItem(`Gained $${(raised / 1000).toFixed(0)}K after event`);
-                }
-                if (effects.credibility !== undefined) {
-                    this.candidate.momentum += effects.credibility;
-                }
-                
-                // Remove event
-                this.events.splice(eventIndex, 1);
-            }
-
-            addNewsItem(text) {
-                const date = `Day ${this.currentDay}`;
-                this.newsItems.unshift({ date, text });
-                if (this.newsItems.length > 50) this.newsItems.pop();
-            }
-
-            getElectoralTotals() {
-                let demEV = 0, repEV = 0, tossEV = 0;
-                Object.keys(STATES_DATA).forEach(state => {
-                    const stateData = STATES_DATA[state];
-                    const demPct = this.candidate.polling[state];
-                    let category;
-                    if (demPct >= 55) category = 'safe-d';
-                    else if (demPct >= 52) category = 'lean-d';
-                    else if (demPct >= 48) category = 'toss-up';
-                    else if (demPct >= 45) category = 'lean-r';
-                    else category = 'safe-r';
-
-                    if (category === 'safe-d' || category === 'lean-d') demEV += stateData.ev;
-                    else if (category === 'safe-r' || category === 'lean-r') repEV += stateData.ev;
-                    else tossEV += stateData.ev;
-                });
-                return { demEV, repEV, tossEV };
-            }
+      advanceDay() {
+        this.currentDay++;
+        // Weekly fundraising
+        if (this.currentDay % 7 === 0) {
+          const baseRaise = 500000;
+          const momBonus = this.candidate.momentum * 100000;
+          const rngRaise = this.rng() * 200000;
+          const raised = baseRaise + momBonus + rngRaise;
+          this.candidate.funds += raised;
+          this.addNewsItem(`Raised $${(raised/1000).toFixed(0)}K this week.`);
         }
 
-        // Instantiate game state
-        const gameState = new GameState();
+        // Random event (10% chance) if none pending
+        if (this.rng() < 0.1 && this.events.length === 0) {
+          const ev = EVENTS[Math.floor(this.rng() * EVENTS.length)];
+          this.events.push(ev);
+        }
 
-        // React Components
+        // Poll drift
+        this.applyPollingDrift();
+      }
 
-        // Setup Modal: collect candidate name and party, and platform positions
-        function SetupModal({ onStart }) {
-            const [name, setName] = useState('');
-            const [party, setParty] = useState('Democratic');
-            const [platform, setPlatform] = useState({});
-            
-            // Initialize default platform: first position of each issue
-            useEffect(() => {
-                const initial = {};
-                ISSUES.forEach(issue => {
-                    initial[issue.id] = issue.positions[0].id;
-                });
-                setPlatform(initial);
-            }, []);
+      applyPollingDrift() {
+        Object.keys(this.candidate.polling).forEach(state => {
+          const drift = (this.rng() - 0.5) * 0.5; // ±0.25
+          const newDem = Math.max(
+            20,
+            Math.min(80, this.candidate.polling[state] + drift)
+          );
+          this.candidate.polling[state] = newDem;
+          this.opponent.polling[state] = 100 - newDem;
+        });
+      }
 
-            const handlePositionChange = (issueId, positionId) => {
-                setPlatform(prev => ({ ...prev, [issueId]: positionId }));
-            };
+      handleEvent(eventId, choiceIdx) {
+        const idx = this.events.findIndex(e => e.id === eventId);
+        if (idx === -1) return;
+        const ev = this.events[idx];
+        const choice = ev.choices[choiceIdx];
+        if (!choice) return;
 
-            const handleSubmit = () => {
-                if (!name.trim()) return;
-                onStart({ name: name.trim(), party, platform });
-            };
-
-            return (
-                <div className="modal">
-                    <div className="modal-content">
-                        <h2>Candidate Setup</h2>
-                        <div className="setup-form">
-                            <div className="form-group">
-                                <label className="form-label">Candidate Name</label>
-                                <input
-                                    className="form-input"
-                                    type="text"
-                                    value={name}
-                                    onChange={e => setName(e.target.value)}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">Party</label>
-                                <select
-                                    className="form-select"
-                                    value={party}
-                                    onChange={e => setParty(e.target.value)}
-                                >
-                                    <option value="Democratic">Democratic</option>
-                                    <option value="Republican">Republican</option>
-                                    <option value="Independent">Independent</option>
-                                </select>
-                            </div>
-                            <div className="platform-builder">
-                                <h3 className="section-title">Build Your Platform</h3>
-                                {ISSUES.map(issue => (
-                                    <div key={issue.id} className="issue-group">
-                                        <div className="issue-title">{issue.name}</div>
-                                        <div className="position-options">
-                                            {issue.positions.map(pos => (
-                                                <label
-                                                    key={pos.id}
-                                                    className="position-option"
-                                                >
-                                                    <input
-                                                        type="radio"
-                                                        name={issue.id}
-                                                        value={pos.id}
-                                                        checked={platform[issue.id] === pos.id}
-                                                        onChange={() =>
-                                                            handlePositionChange(issue.id, pos.id)
-                                                        }
-                                                    />
-                                                    {pos.name}
-                                                </label>
-                                            ))}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                            <button className="btn btn-primary" onClick={handleSubmit}>
-                                Start Campaign
-                            </button>
-                        </div>
-                    </div>
-                </div>
+        const { polling: pollEff, fundraising: fundEff, credibility } = choice.effects;
+        // Apply to every state
+        if (pollEff) {
+          Object.keys(this.candidate.polling).forEach(state => {
+            const newDem = Math.max(
+              20,
+              Math.min(
+                80,
+                this.candidate.polling[state] + pollEff + (this.rng() - 0.5)
+              )
             );
+            this.candidate.polling[state] = newDem;
+            this.opponent.polling[state] = 100 - newDem;
+          });
+        }
+        // Fundraising bump
+        if (fundEff) {
+          const bumped = this.candidate.funds * fundEff;
+          this.candidate.funds += bumped;
+          this.addNewsItem(`Event fundraising: +$${(bumped/1000).toFixed(0)}K`);
+        }
+        // Credibility → momentum
+        if (credibility !== undefined) {
+          this.candidate.momentum += credibility;
         }
 
-        // Sidebar: display events and news feed
-        function Sidebar({ events, newsItems, onEventChoice }) {
-            return (
-                <div className="sidebar">
-                    <div className="section-title">Current Events</div>
-                    {events.length === 0 && <p>No events at the moment.</p>}
-                    {events.map(ev => (
-                        <div key={ev.id} style={{ marginBottom: '15px' }}>
-                            <div className="issue-title">{ev.name}</div>
-                            <p>{ev.description}</p>
-                            {ev.choices.map((choice, idx) => (
-                                <button
-                                    key={idx}
-                                    className="btn btn-success"
-                                    onClick={() => onEventChoice(ev.id, idx)}
-                                >
-                                    {choice.text}
-                                </button>
-                            ))}
-                        </div>
-                    ))}
-                    <div className="section-title">News Feed</div>
-                    <div className="news-feed">
-                        {newsItems.map((item, idx) => (
-                            <div key={idx} className="news-item">
-                                <div className="news-date">{item.date}</div>
-                                <div>{item.text}</div>
-                            </div>
-                        ))}
+        this.events.splice(idx, 1);
+      }
+
+      addNewsItem(text) {
+        const date = `Day ${this.currentDay}`;
+        this.newsItems.unshift({ date, text });
+        if (this.newsItems.length > 50) this.newsItems.pop();
+      }
+
+      // Returns { demEV, repEV, tossEV }
+      getElectoralTotals() {
+        let demEV = 0, repEV = 0, tossEV = 0;
+        Object.keys(STATES_DATA).forEach(state => {
+          const sd = STATES_DATA[state];
+          const demPct = this.candidate.polling[state];
+          let category = 'toss-up';
+          if (demPct >= 55) category = 'safe-d';
+          else if (demPct >= 52) category = 'lean-d';
+          else if (demPct >= 48) category = 'toss-up';
+          else if (demPct >= 45) category = 'lean-r';
+          else category = 'safe-r';
+
+          if (category === 'safe-d' || category === 'lean-d') demEV += sd.ev;
+          else if (category === 'safe-r' || category === 'lean-r') repEV += sd.ev;
+          else tossEV += sd.ev;
+        });
+        return { demEV, repEV, tossEV };
+      }
+
+      // Conduct a simple focus group: spends $200K, returns summary text
+      conductFocusGroup() {
+        const cost = 200000;
+        if (this.candidate.funds < cost) return null;
+        this.candidate.funds -= cost;
+        // Pick 1-2 random issues and give canned feedback
+        const chosenIssues = _.sampleSize(Object.keys(this.candidate.platform), 2);
+        const feedback = chosenIssues.map(issueId => {
+          const posId = this.candidate.platform[issueId];
+          const issue = ISSUES.find(i => i.id === issueId);
+          const posData = issue.positions.find(p => p.id === posId);
+          if (!posData) return '';
+          // Simple interpretation: if effects have large positive on 'college' or 'young', comment "Youth liked it"
+          const eff = posData.effects;
+          if (eff.young && eff.young >= 4) {
+            return `Young voters responded strongly to your stance on ${issue.name}.`;
+          }
+          if (eff.rural && eff.rural <= -3) {
+            return `Rural focus group had concerns about your ${issue.name} position.`;
+          }
+          if (eff.business && eff.business >= 3) {
+            return `Business owners found your ${issue.name} stance appealing.`;
+          }
+          return `Mixed feedback on ${issue.name}.`;
+        });
+        const summary = feedback.join(' ');
+        this.addNewsItem(`Focus group: ${summary}`);
+        return summary;
+      }
+    }
+
+    const gameState = new GameState();
+
+    // 6) Setup Modal
+    function SetupModal({ onStart }) {
+      const [name, setName] = useState('');
+      const [party, setParty] = useState('Democratic');
+      const [platform, setPlatform] = useState({});
+
+      useEffect(() => {
+        const initial = {};
+        ISSUES.forEach(issue => {
+          initial[issue.id] = issue.positions[0].id;
+        });
+        setPlatform(initial);
+      }, []);
+
+      const handlePositionChange = (issueId, posId) => {
+        setPlatform(prev => ({ ...prev, [issueId]: posId }));
+      };
+
+      const handleSubmit = () => {
+        if (!name.trim()) return;
+        onStart({ name: name.trim(), party, platform });
+      };
+
+      return (
+        <div className="modal">
+          <div className="modal-content">
+            <h2>Candidate Setup</h2>
+            <div className="setup-form">
+              <div className="form-group">
+                <label className="form-label">Candidate Name</label>
+                <input
+                  className="form-input"
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Party</label>
+                <select
+                  className="form-select"
+                  value={party}
+                  onChange={e => setParty(e.target.value)}
+                >
+                  <option value="Democratic">Democratic</option>
+                  <option value="Republican">Republican</option>
+                  <option value="Independent">Independent</option>
+                </select>
+              </div>
+
+              <div className="platform-builder">
+                <h3 className="section-title">Build Your Platform</h3>
+                {ISSUES.map(issue => (
+                  <div key={issue.id} className="issue-group">
+                    <div className="issue-title">{issue.name}</div>
+                    <div className="position-options">
+                      {issue.positions.map(pos => (
+                        <label key={pos.id} className="position-option">
+                          <input
+                            type="radio"
+                            name={issue.id}
+                            value={pos.id}
+                            checked={platform[issue.id] === pos.id}
+                            onChange={() => handlePositionChange(issue.id, pos.id)}
+                          />
+                          {pos.name}
+                        </label>
+                      ))}
                     </div>
+                  </div>
+                ))}
+              </div>
+
+              <button className="btn btn-primary" onClick={handleSubmit}>
+                Start Campaign
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // 7) Sidebar for events & news
+    function Sidebar({ events, newsItems, onEventChoice }) {
+      return (
+        <div className="sidebar">
+          <div className="section-title">Current Events</div>
+          {events.length === 0 && <p>No events at the moment.</p>}
+          {events.map(ev => (
+            <div key={ev.id} style={{ marginBottom: '15px' }}>
+              <div className="issue-title">{ev.name}</div>
+              <p>{ev.description}</p>
+              {ev.choices.map((choice, idx) => (
+                <button
+                  key={idx}
+                  className="btn btn-success"
+                  onClick={() => onEventChoice(ev.id, idx)}
+                >
+                  {choice.text}
+                </button>
+              ))}
+            </div>
+          ))}
+
+          <div className="section-title">News Feed</div>
+          <div className="news-feed">
+            {newsItems.map((item, idx) => (
+              <div key={idx} className="news-item">
+                <div className="news-date">{item.date}</div>
+                <div>{item.text}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // 8) ElectoralMap with tooltips
+    function ElectoralMap({ polling }) {
+      const ref = useRef();
+      const tooltip = d3.select('#tooltip');
+
+      useEffect(() => {
+        const width = ref.current.clientWidth;
+        const height = ref.current.clientHeight;
+        const svg = d3
+          .select(ref.current)
+          .html('')
+          .append('svg')
+          .attr('width', width)
+          .attr('height', height);
+
+        const states = Object.keys(STATES_DATA);
+        const cols = 12;
+        const squareSize = width / cols;
+
+        states.forEach((abbr, i) => {
+          const row = Math.floor(i / cols);
+          const col = i % cols;
+          const x = col * squareSize;
+          const y = row * squareSize;
+          const demPct = polling[abbr] || 50;
+          let category = 'toss-up';
+          if (demPct >= 55) category = 'safe-d';
+          else if (demPct >= 52) category = 'lean-d';
+          else if (demPct >= 48) category = 'toss-up';
+          else if (demPct >= 45) category = 'lean-r';
+          else category = 'safe-r';
+
+          // State rectangle
+          svg
+            .append('rect')
+            .attr('x', x + 1)
+            .attr('y', y + 1)
+            .attr('width', squareSize - 2)
+            .attr('height', squareSize - 2)
+            .attr('class', `state-square ${category}`)
+            .on('mouseover', function (event) {
+              d3.select(this).attr('stroke', '#000').attr('stroke-width', 2);
+              const sd = STATES_DATA[abbr];
+              const content = `
+                <strong>${sd.name} (${abbr})</strong><br/>
+                EV: ${sd.ev}<br/>
+                DEM: ${polling[abbr].toFixed(1)}%<br/>
+                REP: ${(100 - polling[abbr]).toFixed(1)}%
+              `;
+              tooltip
+                .html(content)
+                .style('visibility', 'visible')
+                .style('left', event.pageX + 10 + 'px')
+                .style('top', event.pageY + 10 + 'px');
+            })
+            .on('mousemove', function (event) {
+              tooltip
+                .style('left', event.pageX + 10 + 'px')
+                .style('top', event.pageY + 10 + 'px');
+            })
+            .on('mouseout', function () {
+              d3.select(this).attr('stroke', null);
+              tooltip.style('visibility', 'hidden');
+            });
+
+          // State label
+          svg
+            .append('text')
+            .attr('x', x + squareSize / 2)
+            .attr('y', y + squareSize / 2 + 5)
+            .attr('text-anchor', 'middle')
+            .attr('class', 'state-label')
+            .text(abbr)
+            .style('pointer-events', 'none')
+            .style('font-size', squareSize * 0.3)
+            .style('fill', '#fff');
+        });
+      }, [polling]);
+
+      return <div className="electoral-map" ref={ref}></div>;
+    }
+
+    // 9) PollingChart: national popular vote over time
+    function PollingChart({ pollingHistory }) {
+      const ref = useRef();
+
+      useEffect(() => {
+        if (!pollingHistory || pollingHistory.length === 0) return;
+
+        const margin = { top: 10, right: 30, bottom: 30, left: 40 };
+        const width = ref.current.clientWidth - margin.left - margin.right;
+        const height = ref.current.clientHeight - margin.top - margin.bottom;
+
+        const svg = d3
+          .select(ref.current)
+          .html('')
+          .append('svg')
+          .attr('width', width + margin.left + margin.right)
+          .attr('height', height + margin.top + margin.bottom)
+          .append('g')
+          .attr('transform', `translate(${margin.left},${margin.top})`);
+
+        const x = d3.scaleLinear().domain([0, pollingHistory.length - 1]).range([0, width]);
+        const y = d3.scaleLinear().domain([0, 100]).range([height, 0]);
+
+        const lineDem = d3
+          .line()
+          .x((d, i) => x(i))
+          .y(d => y(d.dem));
+        const lineRep = d3
+          .line()
+          .x((d, i) => x(i))
+          .y(d => y(d.rep));
+
+        svg
+          .append('path')
+          .datum(pollingHistory)
+          .attr('fill', 'none')
+          .attr('stroke', '#1e40af')
+          .attr('stroke-width', 2)
+          .attr('d', lineDem);
+
+        svg
+          .append('path')
+          .datum(pollingHistory)
+          .attr('fill', 'none')
+          .attr('stroke', '#dc2626')
+          .attr('stroke-width', 2)
+          .attr('d', lineRep);
+
+        svg
+          .append('g')
+          .attr('transform', `translate(0,${height})`)
+          .call(d3.axisBottom(x).ticks(5));
+        svg.append('g').call(d3.axisLeft(y).ticks(5));
+      }, [pollingHistory]);
+
+      return <div className="poll-chart" ref={ref}></div>;
+    }
+
+    // 10) SpendingControls (unchanged except handling "travel")
+    function SpendingControls({ spending, funds, onChange, onAllocate }) {
+      const [localSpend, setLocalSpend] = useState(spending);
+
+      const handleSliderChange = (category, value) => {
+        setLocalSpend(prev => ({ ...prev, [category]: Number(value) }));
+      };
+
+      const handleSubmit = () => {
+        onAllocate(localSpend);
+      };
+
+      return (
+        <div className="sidebar">
+          <div className="section-title">Allocate Spending ($)</div>
+          <div className="spending-grid">
+            {Object.keys(spending).map(category => (
+              <div key={category} className="spending-category">
+                <div className="spending-title">
+                  {category
+                    .replace('_', ' ')
+                    .replace(/\b\w/g, l => l.toUpperCase())}
                 </div>
-            );
+                <input
+                  type="range"
+                  min="0"
+                  max={funds}
+                  step="10000"
+                  className="spending-slider"
+                  value={localSpend[category]}
+                  onChange={e => handleSliderChange(category, e.target.value)}
+                />
+                <div className="spending-amount">${localSpend[category].toLocaleString()}</div>
+              </div>
+            ))}
+          </div>
+          <button className="btn btn-primary" onClick={handleSubmit}>
+            Allocate
+          </button>
+        </div>
+      );
+    }
+
+    // 11) Demographic Breakdown Panel
+    function DemoBreakdown({ platform }) {
+      // Compute a simplistic “score” for each demographic by summing effects
+      const demoScores = {};
+      ALL_DEMOS.forEach(demo => (demoScores[demo] = 0));
+
+      Object.keys(platform).forEach(issueId => {
+        const posId = platform[issueId];
+        const issue = ISSUES.find(i => i.id === issueId);
+        const posData = issue.positions.find(p => p.id === posId);
+        if (posData && posData.effects) {
+          Object.entries(posData.effects).forEach(([demo, val]) => {
+            demoScores[demo] += val;
+          });
         }
+      });
 
-        // ElectoralMap: visualize states as squares
-        function ElectoralMap({ polling }) {
-            const ref = React.useRef();
+      // We’ll map raw scores (which might range ±20 or so) to a 0–100 scale
+      const maxAbs = Math.max(...Object.values(demoScores).map(v => Math.abs(v), 10));
+      const normalized = {};
+      Object.entries(demoScores).forEach(([demo, raw]) => {
+        // scale to 50 ± 50:  raw = 0 → 50, raw = +maxAbs → 100, raw = -maxAbs → 0
+        const pct = Math.round(((raw + maxAbs) / (2 * maxAbs)) * 100);
+        normalized[demo] = pct;
+      });
 
-            useEffect(() => {
-                const width = ref.current.clientWidth;
-                const height = ref.current.clientHeight;
-                const svg = d3.select(ref.current).html('').append('svg')
-                    .attr('width', width)
-                    .attr('height', height);
+      return (
+        <div className="demo-panel">
+          <div className="section-title">Demographic Breakdown</div>
+          {ALL_DEMOS.map(demo => (
+            <div key={demo} className="demo-row">
+              <div className="demo-label">{demo.replace('_', ' ').toUpperCase()}</div>
+              <div className="demo-value">{normalized[demo]}%</div>
+            </div>
+          ))}
+        </div>
+      );
+    }
 
-                const states = Object.keys(STATES_DATA);
-                const cols = 12;
-                const rows = Math.ceil(states.length / cols);
-                const squareSize = width / cols;
+    // 12) FocusGroupButton
+    function FocusGroupButton({ onConduct, funds }) {
+      const [report, setReport] = useState(null);
 
-                states.forEach((abbr, i) => {
-                    const row = Math.floor(i / cols);
-                    const col = i % cols;
-                    const x = col * squareSize;
-                    const y = row * squareSize;
-                    const demPct = polling[abbr];
-                    let category;
-                    if (demPct >= 55) category = 'safe-d';
-                    else if (demPct >= 52) category = 'lean-d';
-                    else if (demPct >= 48) category = 'toss-up';
-                    else if (demPct >= 45) category = 'lean-r';
-                    else category = 'safe-r';
-
-                    svg.append('rect')
-                        .attr('x', x + 1)
-                        .attr('y', y + 1)
-                        .attr('width', squareSize - 2)
-                        .attr('height', squareSize - 2)
-                        .attr('class', `state-square ${category}`)
-                        .on('mouseover', function () {
-                            d3.select(this).attr('stroke', '#000').attr('stroke-width', 2);
-                        })
-                        .on('mouseout', function () {
-                            d3.select(this).attr('stroke', null);
-                        });
-
-                    svg.append('text')
-                        .attr('x', x + squareSize / 2)
-                        .attr('y', y + squareSize / 2 + 5)
-                        .attr('text-anchor', 'middle')
-                        .attr('class', 'state-label')
-                        .text(abbr)
-                        .style('pointer-events', 'none')
-                        .style('font-size', squareSize * 0.3)
-                        .style('fill', '#fff');
-                });
-            }, [polling]);
-
-            return <div className="electoral-map" ref={ref}></div>;
+      const handleClick = () => {
+        const res = onConduct();
+        if (res === null) {
+          alert('Not enough funds ($200K required).');
+        } else {
+          setReport(res);
         }
+      };
 
-        // PollingChart: show national popular vote over time (simplified)
-        function PollingChart({ pollingHistory }) {
-            const ref = React.useRef();
+      return (
+        <div style={{ marginTop: '15px' }}>
+          <button className="btn btn-success" onClick={handleClick}>
+            Conduct Focus Group ($200K)
+          </button>
+          {report && (
+            <div style={{ marginTop: '10px', fontStyle: 'italic', color: '#555' }}>
+              "{report}"
+            </div>
+          )}
+        </div>
+      );
+    }
 
-            useEffect(() => {
-                if (!pollingHistory || pollingHistory.length === 0) return;
-                const margin = { top: 10, right: 30, bottom: 30, left: 40 };
-                const width = ref.current.clientWidth - margin.left - margin.right;
-                const height = ref.current.clientHeight - margin.top - margin.bottom;
-                const svg = d3.select(ref.current).html('').append('svg')
-                    .attr('width', width + margin.left + margin.right)
-                    .attr('height', height + margin.top + margin.bottom)
-                    .append('g')
-                    .attr('transform', `translate(${margin.left},${margin.top})`);
+    // 13) Main App
+    function App() {
+      const [started, setStarted] = useState(gameState.gameStarted);
+      const [funds, setFunds] = useState(0);
+      const [polling, setPolling] = useState({});
+      const [fundHistory, setFundHistory] = useState([]);
+      const [pollHistory, setPollHistory] = useState([]);
+      const [currentDay, setCurrentDay] = useState(1);
+      const [events, setEvents] = useState([]);
+      const [newsItems, setNewsItems] = useState([]);
+      const [spending, setSpending] = useState(gameState.spending);
+      const [electorals, setElectorals] = useState({ demEV: 0, repEV: 0, tossEV: 0 });
 
-                const x = d3.scaleLinear()
-                    .domain([0, pollingHistory.length - 1])
-                    .range([0, width]);
-                const y = d3.scaleLinear()
-                    .domain([0, 100])
-                    .range([height, 0]);
+      // Start the campaign
+      const handleStart = ({ name, party, platform }) => {
+        gameState.reset();
+        gameState.gameStarted = true;
+        gameState.candidate.name = name;
+        gameState.candidate.party = party;
+        gameState.setPlatform(platform);
 
-                const lineDem = d3.line()
-                    .x((d, i) => x(i))
-                    .y(d => y(d.dem));
-                const lineRep = d3.line()
-                    .x((d, i) => x(i))
-                    .y(d => y(d.rep));
+        setFunds(gameState.candidate.funds);
+        setPolling({ ...gameState.candidate.polling });
+        setElectorals(gameState.getElectoralTotals());
+        setEvents([...gameState.events]);
+        setNewsItems([...gameState.newsItems]);
+        setCurrentDay(gameState.currentDay);
 
-                svg.append('path')
-                    .datum(pollingHistory)
-                    .attr('fill', 'none')
-                    .attr('stroke', '#1e40af')
-                    .attr('stroke-width', 2)
-                    .attr('d', lineDem);
+        const initialDem = getNationalAvg(gameState.candidate.polling);
+        setPollHistory([{ dem: initialDem, rep: 100 - initialDem }]);
+        setFundHistory([{ day: gameState.currentDay, funds: gameState.candidate.funds }]);
+        setStarted(true);
+      };
 
-                svg.append('path')
-                    .datum(pollingHistory)
-                    .attr('fill', 'none')
-                    .attr('stroke', '#dc2626')
-                    .attr('stroke-width', 2)
-                    .attr('d', lineRep);
+      // Weighted national average
+      const getNationalAvg = pollingData => {
+        let totalEV = 0,
+          sum = 0;
+        Object.keys(STATES_DATA).forEach(state => {
+          const ev = STATES_DATA[state].ev;
+          sum += pollingData[state] * ev;
+          totalEV += ev;
+        });
+        return sum / totalEV;
+      };
 
-                // Axes
-                svg.append('g')
-                    .attr('transform', `translate(0,${height})`)
-                    .call(d3.axisBottom(x).ticks(5));
-                svg.append('g')
-                    .call(d3.axisLeft(y).ticks(5));
-            }, [pollingHistory]);
+      // Advance one day
+      const advanceDay = () => {
+        gameState.advanceDay();
+        setCurrentDay(gameState.currentDay);
+        setFunds(gameState.candidate.funds);
+        setPolling({ ...gameState.candidate.polling });
+        setEvents([...gameState.events]);
+        setNewsItems([...gameState.newsItems]);
+        setElectorals(gameState.getElectoralTotals());
 
-            return <div className="poll-chart" ref={ref}></div>;
+        const demPct = getNationalAvg(gameState.candidate.polling);
+        setPollHistory(prev => [
+          ...prev,
+          { dem: demPct, rep: 100 - demPct }
+        ]);
+        setFundHistory(prev => [
+          ...prev,
+          { day: gameState.currentDay, funds: gameState.candidate.funds }
+        ]);
+      };
+
+      // Handle random event choice
+      const handleEventChoice = (eventId, choiceIdx) => {
+        gameState.handleEvent(eventId, choiceIdx);
+        setPolling({ ...gameState.candidate.polling });
+        setEvents([...gameState.events]);
+        setNewsItems([...gameState.newsItems]);
+        setElectorals(gameState.getElectoralTotals());
+      };
+
+      // Allocate spending
+      const handleAllocate = spend => {
+        const ok = gameState.allocateSpending(spend);
+        if (ok) {
+          setSpending({ ...spend });
+          setFunds(gameState.candidate.funds);
+          setPolling({ ...gameState.candidate.polling });
+          setElectorals(gameState.getElectoralTotals());
+        } else {
+          alert('Not enough funds.');
         }
+      };
 
-        // SpendingControls: adjust spending sliders
-        function SpendingControls({ spending, funds, onChange, onAllocate }) {
-            const [localSpend, setLocalSpend] = useState(spending);
+      // Conduct focus group
+      const handleConductFocus = () => {
+        const summary = gameState.conductFocusGroup();
+        if (summary !== null) {
+          setFunds(gameState.candidate.funds);
+          setNewsItems([...gameState.newsItems]);
+        }
+        return summary;
+      };
 
-            const handleSliderChange = (category, value) => {
-                setLocalSpend(prev => ({ ...prev, [category]: Number(value) }));
-            };
+      if (!started) {
+        return <SetupModal onStart={handleStart} />;
+      }
 
-            const handleSubmit = () => {
-                onAllocate(localSpend);
-            };
-
-            return (
-                <div className="sidebar">
-                    <div className="section-title">Allocate Spending ($)</div>
-                    <div className="spending-grid">
-                        {Object.keys(spending).map(category => (
-                            <div key={category} className="spending-category">
-                                <div className="spending-title">
-                                    {category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                                </div>
-                                <input
-                                    type="range"
-                                    min="0"
-                                    max={funds}
-                                    step="10000"
-                                    className="spending-slider"
-                                    value={localSpend[category]}
-                                    onChange={e => handleSliderChange(category, e.target.value)}
-                                />
-                                <div className="spending-amount">${localSpend[category].toLocaleString()}</div>
-                            </div>
-                        ))}
-                    </div>
-                    <button className="btn btn-primary" onClick={handleSubmit}>
-                        Allocate
-                    </button>
+      return (
+        <div className="container">
+          <div className="game-header">
+            <div className="game-title">
+              {gameState.candidate.name} ({gameState.candidate.party})
+            </div>
+            <div className="stats-bar">
+              <div className="stat-item">
+                <div className="stat-value">${funds.toLocaleString()}</div>
+                <div className="stat-label">Funds</div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-value">Day {currentDay}</div>
+                <div className="stat-label">Campaign Day</div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-value">
+                  {electorals.demEV}D / {electorals.repEV}R / {electorals.tossEV}T
                 </div>
-            );
-        }
+                <div className="stat-label">Electoral Votes</div>
+              </div>
+              <button className="btn btn-danger" onClick={advanceDay}>
+                Advance Day
+              </button>
+            </div>
+          </div>
 
-        // Main App Component
-        function App() {
-            const [started, setStarted] = useState(gameState.gameStarted);
-            const [funds, setFunds] = useState(0);
-            const [polling, setPolling] = useState({});
-            const [fundHistory, setFundHistory] = useState([]);
-            const [pollHistory, setPollHistory] = useState([]);
-            const [currentDay, setCurrentDay] = useState(1);
-            const [events, setEvents] = useState([]);
-            const [newsItems, setNewsItems] = useState([]);
-            const [spending, setSpending] = useState(gameState.spending);
-            const [electorals, setElectorals] = useState({ demEV: 0, repEV: 0, tossEV: 0 });
+          <div className="main-content">
+            <Sidebar events={events} newsItems={newsItems} onEventChoice={handleEventChoice} />
 
-            // Start game with setup info
-            const handleStart = ({ name, party, platform }) => {
-                gameState.reset();
-                gameState.gameStarted = true;
-                gameState.candidate.name = name;
-                gameState.candidate.party = party;
-                gameState.setPlatform(platform);
-                setFunds(gameState.candidate.funds);
-                setPolling({ ...gameState.candidate.polling });
-                setElectorals(gameState.getElectoralTotals());
-                setEvents([...gameState.events]);
-                setNewsItems([...gameState.newsItems]);
-                setCurrentDay(gameState.currentDay);
-                setPollHistory([{ dem: getNationalAvg(gameState.candidate.polling), rep: 100 - getNationalAvg(gameState.candidate.polling) }]);
-                setFundHistory([{ day: gameState.currentDay, funds: gameState.candidate.funds }]);
-                setStarted(true);
-            };
+            <div className="central-panel">
+              <ElectoralMap polling={polling} />
+              <PollingChart pollingHistory={pollHistory} />
 
-            // Calculate national average D% from state polling weighted by EV
-            const getNationalAvg = pollingData => {
-                let totalEV = 0, weightedSum = 0;
-                Object.keys(STATES_DATA).forEach(state => {
-                    const ev = STATES_DATA[state].ev;
-                    weightedSum += pollingData[state] * ev;
-                    totalEV += ev;
-                });
-                return weightedSum / totalEV;
-            };
+              <DemoBreakdown platform={gameState.candidate.platform} />
+              <FocusGroupButton onConduct={handleConductFocus} funds={funds} />
+            </div>
 
-            // Advance one day
-            const advanceDay = () => {
-                gameState.advanceDay();
-                setCurrentDay(gameState.currentDay);
-                setFunds(gameState.candidate.funds);
-                setPolling({ ...gameState.candidate.polling });
-                setEvents([...gameState.events]);
-                setNewsItems([...gameState.newsItems]);
-                setElectorals(gameState.getElectoralTotals());
-                setPollHistory(prev => [
-                    ...prev,
-                    {
-                        dem: getNationalAvg(gameState.candidate.polling),
-                        rep: 100 - getNationalAvg(gameState.candidate.polling)
-                    }
-                ]);
-                setFundHistory(prev => [...prev, { day: gameState.currentDay, funds: gameState.candidate.funds }]);
-            };
+            <SpendingControls
+              spending={spending}
+              funds={funds}
+              onChange={setSpending}
+              onAllocate={handleAllocate}
+            />
+          </div>
+        </div>
+      );
+    }
 
-            // Handle event choice
-            const handleEventChoice = (eventId, choiceIdx) => {
-                gameState.handleEvent(eventId, choiceIdx);
-                setPolling({ ...gameState.candidate.polling });
-                setEvents([...gameState.events]);
-                setNewsItems([...gameState.newsItems]);
-                setElectorals(gameState.getElectoralTotals());
-            };
-
-            // Handle spending allocation
-            const handleAllocate = spend => {
-                const success = gameState.allocateSpending(spend);
-                if (success) {
-                    setSpending({ ...spend });
-                    setFunds(gameState.candidate.funds);
-                    setPolling({ ...gameState.candidate.polling });
-                    setElectorals(gameState.getElectoralTotals());
-                } else {
-                    alert('Not enough funds to allocate that budget.');
-                }
-            };
-
-            if (!started) {
-                return <SetupModal onStart={handleStart} />;
-            }
-
-            return (
-                <div className="container">
-                    <div className="game-header">
-                        <div className="game-title">
-                            {gameState.candidate.name} ({gameState.candidate.party})
-                        </div>
-                        <div className="stats-bar">
-                            <div className="stat-item">
-                                <div className="stat-value">${funds.toLocaleString()}</div>
-                                <div className="stat-label">Funds</div>
-                            </div>
-                            <div className="stat-item">
-                                <div className="stat-value">Day {currentDay}</div>
-                                <div className="stat-label">Campaign Day</div>
-                            </div>
-                            <div className="stat-item">
-                                <div className="stat-value">
-                                    {electorals.demEV}D / {electorals.repEV}R / {electorals.tossEV}T
-                                </div>
-                                <div className="stat-label">Electoral Votes</div>
-                            </div>
-                            <button className="btn btn-danger" onClick={advanceDay}>
-                                Advance Day
-                            </button>
-                        </div>
-                    </div>
-                    <div className="main-content">
-                        <Sidebar events={events} newsItems={newsItems} onEventChoice={handleEventChoice} />
-                        <div className="central-panel">
-                            <ElectoralMap polling={polling} />
-                            <PollingChart pollingHistory={pollHistory} />
-                        </div>
-                        <SpendingControls
-                            spending={spending}
-                            funds={funds}
-                            onChange={setSpending}
-                            onAllocate={handleAllocate}
-                        />
-                    </div>
-                </div>
-            );
-        }
-
-        // Render to DOM
-        ReactDOM.render(<App />, document.getElementById('root'));
-    </script>
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
 </body>
 </html>
