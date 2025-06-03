@@ -3,52 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>US Election Simulator 2024 (Focused & Realistic)</title>
+  <title>City Transit Tycoon</title>
 
   <!-- React & ReactDOM -->
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <!-- D3 for SVG map & tooltips -->
+  <!-- D3.js for maps & charts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 
   <!-- seedrandom for reproducible randomness -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script>
 
   <style>
+    :root {
+      --bg-gradient-1: #0f2027;
+      --bg-gradient-2: #203a43;
+      --bg-gradient-3: #2c5364;
+      --panel-bg: rgba(255,255,255,0.9);
+      --accent: #1e90ff;
+      --accent-dark: #1c7ed6;
+      --text-dark: #333;
+      --text-light: #fff;
+      --shadow-glow: rgba(0, 0, 0, 0.2);
+      --font-primary: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-      color: #333;
+      font-family: var(--font-primary);
+      background: linear-gradient(135deg, var(--bg-gradient-1), var(--bg-gradient-2), var(--bg-gradient-3));
+      color: var(--text-dark);
       overflow-x: hidden;
     }
     .container {
       max-width: 1400px;
-      margin: 0 auto;
-      padding: 20px;
+      margin: 20px auto;
+      padding: 0 20px;
     }
-    .game-header {
-      background: rgba(255,255,255,0.95);
+    .header {
+      background: var(--panel-bg);
       backdrop-filter: blur(10px);
       border-radius: 15px;
+      box-shadow: 0 5px 20px var(--shadow-glow);
       padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
     }
-    .game-title {
+    .header-title {
       font-size: 2rem;
       font-weight: bold;
-      color: #1e3c72;
+      color: var(--accent);
+      text-shadow: 1px 1px 4px var(--shadow-glow);
     }
     .stats-bar {
       display: flex;
@@ -62,106 +75,62 @@
     .stat-value {
       font-size: 1.5rem;
       font-weight: bold;
-      color: #2a5298;
+      color: var(--accent-dark);
     }
     .stat-label {
       font-size: 0.9rem;
-      color: #666;
+      color: #555;
     }
     .main-content {
       display: grid;
       grid-template-columns: 300px 1fr 300px;
       gap: 20px;
+      margin-top: 20px;
       min-height: 70vh;
     }
-    .sidebar {
-      background: rgba(255,255,255,0.95);
+    .sidebar, .right-panel {
+      background: var(--panel-bg);
       backdrop-filter: blur(10px);
       padding: 20px;
       border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      box-shadow: 0 5px 20px var(--shadow-glow);
       height: fit-content;
     }
     .central-panel {
-      background: rgba(255,255,255,0.95);
+      background: var(--panel-bg);
       backdrop-filter: blur(10px);
       padding: 20px;
       border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      box-shadow: 0 5px 20px var(--shadow-glow);
       display: flex;
       flex-direction: column;
       gap: 20px;
+      overflow-y: auto;
     }
     .section-title {
       font-size: 1.3rem;
       font-weight: bold;
-      color: #1e3c72;
+      color: var(--accent);
       margin-bottom: 15px;
       border-bottom: 2px solid #e0e0e0;
       padding-bottom: 5px;
     }
     .btn {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      background: var(--accent);
+      color: var(--text-light);
       border: none;
-      padding: 12px 24px;
-      border-radius: 25px;
+      padding: 10px 20px;
+      border-radius: 20px;
       cursor: pointer;
       font-size: 1rem;
       font-weight: 600;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      margin: 5px 0;
+      box-shadow: 0 3px 10px var(--shadow-glow);
+      margin-top: 10px;
     }
     .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    }
-    .btn-danger {
-      background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-    }
-    .btn-success {
-      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-      color: #333;
-    }
-    .electoral-map {
-      width: 100%;
-      height: 400px;
-      background: #f8f9fa;
-      border: 2px solid #e0e0e0;
-      border-radius: 10px;
-      position: relative;
-      overflow: hidden;
-    }
-    .state-square {
-      position: absolute;
-      border: 1px solid #ccc;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .state-square:hover {
-      transform: scale(1.1);
-      z-index: 10;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    }
-    .safe-d { background-color: #1e40af; color: white; }
-    .lean-d { background-color: #60a5fa; color: white; }
-    .toss-up { background-color: #fbbf24; color: #333; }
-    .lean-r { background-color: #f87171; color: white; }
-    .safe-r { background-color: #dc2626; color: white; }
-    .poll-chart {
-      height: 200px;
-      background: #f8f9fa;
-      border-radius: 10px;
-      padding: 10px;
+      background: var(--accent-dark);
+      box-shadow: 0 5px 15px var(--shadow-glow);
     }
     .modal {
       position: fixed;
@@ -181,68 +150,75 @@
       width: 90%;
       max-height: 80vh;
       overflow-y: auto;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    }
-    .setup-form {
-      display: grid;
-      gap: 20px;
+      box-shadow: 0 20px 60px var(--shadow-glow);
     }
     .form-group {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      margin-bottom: 15px;
     }
     .form-label {
       font-weight: bold;
-      color: #1e3c72;
+      color: var(--accent);
+      margin-bottom: 5px;
     }
     .form-input, .form-select {
-      padding: 12px;
-      border: 2px solid #e0e0e0;
+      padding: 10px;
+      border: 2px solid #ccc;
       border-radius: 8px;
       font-size: 1rem;
-      background: white;
     }
-    .poll-table {
+    .map-container {
+      width: 100%;
+      height: 400px;
+      position: relative;
+    }
+    .network-graph {
+      width: 100%;
+      height: 300px;
+      background: #fafafa;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      padding: 10px;
+    }
+    .chart {
+      width: 100%;
+      height: 200px;
+      background: #fafafa;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      padding: 10px;
+    }
+    .fleet-table, .station-table, .event-log {
       width: 100%;
       border-collapse: collapse;
       margin-top: 10px;
     }
-    .poll-table th, .poll-table td {
+    .fleet-table th, .fleet-table td,
+    .station-table th, .station-table td {
       border: 1px solid #ddd;
       padding: 8px;
       text-align: center;
       font-size: 0.9rem;
     }
-    .poll-table th {
+    .fleet-table th, .station-table th {
       background: #f1f1f1;
+      color: var(--accent);
       font-weight: bold;
-      color: #1e3c72;
     }
-    .spending-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 15px;
-      margin: 20px 0;
-    }
-    .spending-category {
-      background: #f8f9fa;
-      padding: 15px;
+    .event-log {
+      max-height: 200px;
+      overflow-y: auto;
+      background: #fafafa;
       border-radius: 10px;
-      border: 1px solid #e0e0e0;
+      border: 1px solid #ddd;
+      padding: 10px;
     }
-    .spending-title {
-      font-weight: bold;
-      margin-bottom: 10px;
-      color: #1e3c72;
-    }
-    .spending-slider {
-      width: 100%;
-      margin: 10px 0;
-    }
-    .spending-amount {
-      font-weight: bold;
-      color: #2a5298;
+    .event-item {
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
     }
     #tooltip {
       position: absolute;
@@ -267,13 +243,12 @@
     }
     @media (max-width: 768px) {
       .container { padding: 10px; }
-      .game-header {
+      .header {
         flex-direction: column;
         gap: 20px;
         text-align: center;
       }
       .stats-bar { gap: 15px; }
-      .electoral-map { height: 300px; }
     }
   </style>
 </head>
@@ -285,460 +260,608 @@
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
-    // ---- 1) State Data ----
-    const STATES_DATA = {
-      AL: { name: 'Alabama', ev: 9, pvi: 15 },
-      AK: { name: 'Alaska', ev: 3, pvi: 9 },
-      AZ: { name: 'Arizona', ev: 11, pvi: 2 },
-      AR: { name: 'Arkansas', ev: 6, pvi: 16 },
-      CA: { name: 'California', ev: 54, pvi: -15 },
-      CO: { name: 'Colorado', ev: 10, pvi: -4 },
-      CT: { name: 'Connecticut', ev: 7, pvi: -7 },
-      DE: { name: 'Delaware', ev: 3, pvi: -7 },
-      FL: { name: 'Florida', ev: 30, pvi: 3 },
-      GA: { name: 'Georgia', ev: 16, pvi: 3 },
-      HI: { name: 'Hawaii', ev: 4, pvi: -18 },
-      ID: { name: 'Idaho', ev: 4, pvi: 31 },
-      IL: { name: 'Illinois', ev: 19, pvi: -8 },
-      IN: { name: 'Indiana', ev: 11, pvi: 11 },
-      IA: { name: 'Iowa', ev: 6, pvi: 6 },
-      KS: { name: 'Kansas', ev: 6, pvi: 13 },
-      KY: { name: 'Kentucky', ev: 8, pvi: 16 },
-      LA: { name: 'Louisiana', ev: 8, pvi: 12 },
-      ME: { name: 'Maine', ev: 4, pvi: -3 },
-      MD: { name: 'Maryland', ev: 10, pvi: -13 },
-      MA: { name: 'Massachusetts', ev: 11, pvi: -15 },
-      MI: { name: 'Michigan', ev: 15, pvi: -1 },
-      MN: { name: 'Minnesota', ev: 10, pvi: -2 },
-      MS: { name: 'Mississippi', ev: 6, pvi: 11 },
-      MO: { name: 'Missouri', ev: 10, pvi: 10 },
-      MT: { name: 'Montana', ev: 4, pvi: 11 },
-      NE: { name: 'Nebraska', ev: 5, pvi: 14 },
-      NV: { name: 'Nevada', ev: 6, pvi: -1 },
-      NH: { name: 'New Hampshire', ev: 4, pvi: -1 },
-      NJ: { name: 'New Jersey', ev: 14, pvi: -6 },
-      NM: { name: 'New Mexico', ev: 5, pvi: -3 },
-      NY: { name: 'New York', ev: 28, pvi: -10 },
-      NC: { name: 'North Carolina', ev: 16, pvi: 3 },
-      ND: { name: 'North Dakota', ev: 3, pvi: 20 },
-      OH: { name: 'Ohio', ev: 17, pvi: 6 },
-      OK: { name: 'Oklahoma', ev: 7, pvi: 20 },
-      OR: { name: 'Oregon', ev: 8, pvi: -6 },
-      PA: { name: 'Pennsylvania', ev: 19, pvi: -1 },
-      RI: { name: 'Rhode Island', ev: 4, pvi: -13 },
-      SC: { name: 'South Carolina', ev: 9, pvi: 8 },
-      SD: { name: 'South Dakota', ev: 3, pvi: 14 },
-      TN: { name: 'Tennessee', ev: 11, pvi: 14 },
-      TX: { name: 'Texas', ev: 40, pvi: 5 },
-      UT: { name: 'Utah', ev: 6, pvi: 13 },
-      VT: { name: 'Vermont', ev: 3, pvi: -16 },
-      VA: { name: 'Virginia', ev: 13, pvi: -2 },
-      WA: { name: 'Washington', ev: 12, pvi: -8 },
-      WV: { name: 'West Virginia', ev: 4, pvi: 23 },
-      WI: { name: 'Wisconsin', ev: 10, pvi: -1 },
-      WY: { name: 'Wyoming', ev: 3, pvi: 25 },
-      DC: { name: 'Washington DC', ev: 3, pvi: -43 }
-    };
-
-    // ---- 2) ISSUES & POSITIONS (unchanged) ----
-    const ISSUES = [
-      {
-        id: 'economy',
-        name: 'Economy',
-        positions: [
-          {
-            id: 'progressive',
-            name: 'Progressive Tax & Spending',
-            effects: { young: 4, college: 3, urban: 3, rural: -2, business: -4 }
-          },
-          {
-            id: 'moderate',
-            name: 'Balanced Approach',
-            effects: { moderate: 2, suburban: 2 }
-          },
-          {
-            id: 'conservative',
-            name: 'Tax Cuts & Deregulation',
-            effects: { business: 4, rural: 3, wealthy: 4, young: -2, union: -3 }
-          }
-        ]
-      },
-      {
-        id: 'healthcare',
-        name: 'Healthcare',
-        positions: [
-          {
-            id: 'medicare_all',
-            name: 'Medicare for All',
-            effects: { young: 5, black: 4, hispanic: 3, rural: -2, wealthy: -3 }
-          },
-          {
-            id: 'public_option',
-            name: 'Public Option',
-            effects: { college: 3, suburban: 2, moderate: 3 }
-          },
-          {
-            id: 'market_based',
-            name: 'Market-based Solutions',
-            effects: { business: 4, wealthy: 3, rural: 2, young: -3 }
-          }
-        ]
-      },
-      {
-        id: 'immigration',
-        name: 'Immigration',
-        positions: [
-          {
-            id: 'pathway',
-            name: 'Pathway to Citizenship',
-            effects: { hispanic: 6, young: 3, urban: 3, rural: -3, white_nc: -2 }
-          },
-          {
-            id: 'reform',
-            name: 'Comprehensive Reform',
-            effects: { moderate: 2, suburban: 1, college: 2 }
-          },
-          {
-            id: 'enforcement',
-            name: 'Border Security First',
-            effects: { rural: 4, white_nc: 3, business: 2, hispanic: -4, young: -2 }
-          }
-        ]
-      },
-      {
-        id: 'climate',
-        name: 'Climate Change',
-        positions: [
-          {
-            id: 'green_deal',
-            name: 'Green New Deal',
-            effects: { young: 5, college: 4, urban: 3, rural: -3, business: -2 }
-          },
-          {
-            id: 'clean_energy',
-            name: 'Clean Energy Investment',
-            effects: { suburban: 3, moderate: 2, college: 2 }
-          },
-          {
-            id: 'market_solutions',
-            name: 'Market-based Solutions',
-            effects: { business: 3, wealthy: 2, rural: 1, young: -2 }
-          }
-        ]
-      },
-      {
-        id: 'guns',
-        name: 'Gun Policy',
-        positions: [
-          {
-            id: 'gun_control',
-            name: 'Comprehensive Gun Control',
-            effects: { urban: 4, black: 3, suburban: 2, rural: -4, white_nc: -2 }
-          },
-          {
-            id: 'background_checks',
-            name: 'Universal Background Checks',
-            effects: { moderate: 3, suburban: 3, college: 2 }
-          },
-          {
-            id: 'second_amendment',
-            name: 'Protect 2nd Amendment',
-            effects: { rural: 5, white_nc: 3, business: 2, urban: -3, black: -2 }
-          }
-        ]
-      }
-    ];
-
-    // ---- 3) Poll Simulation Parameters ----
-    // We simulate weekly polls with margin of error +/- 3%.
-    const POLL_MOE = 3; // ±3%
-
-    // ---- 4) GameState: realistic weekly loop ----
+    // ----------- 1) Core GameState Singleton -----------
     class GameState {
       constructor() {
-        this.rng = new Math.seedrandom('focused2024');
+        this.rng = new Math.seedrandom('tycoon2024');
         this.reset();
       }
 
       reset() {
-        this.gameStarted = false;
-        this.currentWeek = 1;
-        this.totalWeeks = 26; // 26 weeks ≈ 6 months
-        this.candidate = {
-          name: '',
-          party: 'Democratic',
-          funds: 5000000, // Start with $5M
-          platform: {},
-          trueSupport: {},   // underlying support per state
-          pollingHistory: {},// { state: [latestPolls...] }
+        // Time (in months, 1..120)
+        this.currentMonth = 1;
+        this.maxMonths = 120;
+        this.gameOver = false;
+
+        // Company Info
+        this.companyName = '';
+        this.cash = 5_000_000;   // $5M starting capital
+        this.revenue = 0;
+        this.expenses = 0;
+        this.monthlyProfit = 0;
+
+        // City & Demand
+        this.cityPopulation = 200_000;    // starting population
+        this.monthlyGrowthRate = 0.005;   // 0.5% base
+        this.baseRidershipPct = 0.15;     // 15% of population uses transit initially
+
+        // Fleet & Routes
+        this.fleet = [];      // array of { id, type, capacity, speed, maintenanceCost, status }
+        this.nextFleetId = 1;
+        this.routes = [];     // array of { id, name, stops: [stationIds], length, type, fare, assignedFleetId }
+        this.nextRouteId = 1;
+
+        // Stations
+        this.stations = [];   // { id, name, x, y, maintenanceCost }
+        this.nextStationId = 1;
+
+        // Events Log
+        this.log = [];
+
+        // Performance metrics (for charts)
+        this.history = {
+          months: [],
+          profits: [],
+          ridership: [],
+          cash: []
         };
-        this.opponent = { name: 'Generic Opponent', party: 'Republican' };
-        this.spendingThisWeek = 0; // ad budget for this week
-        this.initializeTrueSupport();
-        this.initializePollingHistory();
+
+        // Initialize demand nodes
+        this.initializeStations();
+
+        // --- initial logging ---
+        this.logEvent("Game started. Welcome to City Transit Tycoon!");
       }
 
-      // Initial “true support” based on PVI only
-      initializeTrueSupport() {
-        Object.keys(STATES_DATA).forEach(state => {
-          // Convert PVI+50 to approximate true Dem support:
-          const base = 50 - STATES_DATA[state].pvi / 2;
-          this.candidate.trueSupport[state] = base;
-        });
-      }
-
-      // Keep a sliding array of last 3 weekly polls for each state
-      initializePollingHistory() {
-        Object.keys(STATES_DATA).forEach(state => {
-          this.candidate.pollingHistory[state] = [];
-        });
-      }
-
-      setPlatform(platform) {
-        this.candidate.platform = platform;
-        this.applyPlatformEffects();
-      }
-
-      // Platform gives a one-time bump to trueSupport at start
-      applyPlatformEffects() {
-        Object.keys(STATES_DATA).forEach(state => {
-          let platformEffect = 0;
-          Object.keys(this.candidate.platform).forEach(issueId => {
-            const posId = this.candidate.platform[issueId];
-            const issue = ISSUES.find(i => i.id === issueId);
-            const posData = issue.positions.find(p => p.id === posId);
-            if (posData && posData.effects) {
-              // approximate effect by summing all demographic weights * 0.1
-              const sumEffects = Object.values(posData.effects).reduce((a, b) => a + b, 0);
-              platformEffect += sumEffects * 0.03; // smaller scale
-            }
-          });
-          this.candidate.trueSupport[state] = Math.max(
-            20,
-            Math.min(80, this.candidate.trueSupport[state] + platformEffect)
-          );
-        });
-      }
-
-      // Each week:
-      // 1) Fundraise
-      // 2) Apply ad spending effect to trueSupport
-      // 3) Conduct polls with MOE
-      // 4) Advance week
-      weeklyUpdate() {
-        // 1) Fundraising: $300K base + momentum from past weeks
-        const baseRaise = 300000;
-        this.candidate.funds += baseRaise;
-
-        // 2) Ad spending: assume the entire ad budget is evenly spread among toss-up states
-        if (this.spendingThisWeek > 0) {
-          const tossUps = this.getTossUpStates(5);
-          const perStateSpend = this.spendingThisWeek / tossUps.length;
-          tossUps.forEach(state => {
-            // $1M → +0.5% trueSupport
-            const bump = (perStateSpend / 1000000) * 0.5;
-            this.candidate.trueSupport[state] = Math.max(
-              20,
-              Math.min(80, this.candidate.trueSupport[state] + bump)
-            );
+      initializeStations() {
+        // Pre‐place 10 random stations on a 500×500 grid
+        this.stations = [];
+        for (let i = 0; i < 10; i++) {
+          const x = Math.floor(this.rng() * 500);
+          const y = Math.floor(this.rng() * 500);
+          this.stations.push({
+            id: this.nextStationId++,
+            name: `Station ${i + 1}`,
+            x, y,
+            maintenanceCost: 2000  // monthly
           });
         }
-
-        // 3) Conduct weekly poll for each state
-        Object.keys(STATES_DATA).forEach(state => {
-          const truePct = this.candidate.trueSupport[state];
-          // Simulate poll with uniform error ±MOE
-          const error = (this.rng() - 0.5) * 2 * POLL_MOE;
-          const polled = Math.max(0, Math.min(100, truePct + error));
-          // Push into history (keep last 3)
-          const arr = this.candidate.pollingHistory[state];
-          if (arr.length >= 3) arr.shift();
-          arr.push(polled);
-        });
-
-        // Reset weekly spending
-        this.spendingThisWeek = 0;
-        this.currentWeek++;
       }
 
-      // Returns array of state abbreviations considered toss-up (margin < threshold)
-      getTossUpStates(marginThreshold = 5) {
-        return Object.keys(STATES_DATA).filter(state => {
-          const arr = this.candidate.pollingHistory[state];
-          if (!arr || arr.length === 0) return false;
-          // Use average of last polls as current poll
-          const avg =
-            arr.reduce((a, b) => a + b, 0) / arr.length;
-          return Math.abs(avg - 50) < marginThreshold;
-        });
+      logEvent(text) {
+        const month = this.currentMonth;
+        this.log.unshift({ month, text });
+        if (this.log.length > 100) this.log.pop();
       }
 
-      // Get current polling average for each state
-      getCurrentPolls() {
-        const current = {};
-        Object.keys(STATES_DATA).forEach(state => {
-          const arr = this.candidate.pollingHistory[state];
-          if (!arr || arr.length === 0) {
-            current[state] = this.candidate.trueSupport[state];
-          } else {
-            current[state] = arr.reduce((a, b) => a + b, 0) / arr.length;
+      advanceMonth() {
+        if (this.gameOver) return;
+        // 1) City population grows
+        this.cityPopulation = Math.round(
+          this.cityPopulation * (1 + this.monthlyGrowthRate + (this.rng() - 0.5) * 0.005)
+        );
+
+        // 2) Compute ridership demand
+        const totalCapacity = this.fleet.reduce((sum, f) => {
+          if (f.status === 'active') return sum + f.capacity * f.frequency;
+          return sum;
+        }, 0);
+        const potentialRiders = Math.round(
+          this.cityPopulation * (this.baseRidershipPct + (this.fleet.length * 0.005))
+        );
+        const actualRidership = Math.min(potentialRiders, totalCapacity);
+
+        // 3) Revenue = ridership × average fare
+        const avgFare =
+          this.routes.length > 0
+            ? this.routes.reduce((s, r) => s + r.fare, 0) / this.routes.length
+            : 0;
+        this.revenue = actualRidership * avgFare;
+
+        // 4) Expenses = maintenance of fleet + stations + staff (10% of revenue)
+        const fleetMaintenance = this.fleet.reduce((s, f) => s + (f.status === 'active' ? f.maintenanceCost : 0), 0);
+        const stationMaintenance = this.stations.reduce((s, st) => s + st.maintenanceCost, 0);
+        const staffCosts = this.revenue * 0.1;
+        this.expenses = fleetMaintenance + stationMaintenance + staffCosts;
+
+        // 5) Profit & update cash
+        this.monthlyProfit = this.revenue - this.expenses;
+        this.cash += this.monthlyProfit;
+
+        // 6) Record history for charts
+        this.history.months.push(this.currentMonth);
+        this.history.profits.push(this.monthlyProfit);
+        this.history.ridership.push(actualRidership);
+        this.history.cash.push(this.cash);
+
+        // 7) Check losing condition
+        if (this.cash < 0) {
+          this.logEvent("Bankruptcy! You’ve run out of cash.");
+          this.gameOver = true;
+        }
+
+        // 8) Increment month
+        this.currentMonth++;
+        if (this.currentMonth > this.maxMonths) {
+          this.logEvent("Game Over! Reached maximum months.");
+          this.gameOver = true;
+        }
+      }
+
+      // ---------------- Fleet Management ----------------
+      buyFleet(type) {
+        // Types: 'Bus', 'Tram', 'Subway'
+        const specs = {
+          Bus: { capacity: 40, speed: 40, cost: 100_000, maintenance: 2000 },
+          Tram: { capacity: 100, speed: 60, cost: 500_000, maintenance: 5000 },
+          Subway: { capacity: 300, speed: 80, cost: 2_000_000, maintenance: 20000 }
+        };
+        const s = specs[type];
+        if (!s) return false;
+        if (this.cash < s.cost) return false;
+        this.cash -= s.cost;
+        this.fleet.push({
+          id: this.nextFleetId++,
+          type,
+          capacity: s.capacity,
+          speed: s.speed,
+          maintenanceCost: s.maintenance,
+          status: 'active',
+          frequency: 1  // runs once per month by default
+        });
+        this.logEvent(`Purchased new ${type} (#${this.nextFleetId - 1})`);
+        return true;
+      }
+
+      retireFleet(fleetId) {
+        const idx = this.fleet.findIndex(f => f.id === fleetId);
+        if (idx === -1) return false;
+        const f = this.fleet[idx];
+        this.fleet.splice(idx, 1);
+        this.logEvent(`Retired ${f.type} (#${fleetId})`);
+        return true;
+      }
+
+      upgradeFleetFrequency(fleetId) {
+        const f = this.fleet.find(f => f.id === fleetId && f.status === 'active');
+        if (!f) return false;
+        const upgradeCost = 50000 * f.frequency; // scaling cost
+        if (this.cash < upgradeCost) return false;
+        this.cash -= upgradeCost;
+        f.frequency += 1;
+        this.logEvent(`Increased frequency of ${f.type} (#${fleetId}) to ${f.frequency} runs/month`);
+        return true;
+      }
+
+      // ---------------- Station Management ----------------
+      buildStation(x, y) {
+        const cost = 300_000;
+        if (this.cash < cost) return false;
+        this.cash -= cost;
+        this.stations.push({
+          id: this.nextStationId++,
+          name: `Station ${this.nextStationId - 1}`,
+          x, y,
+          maintenanceCost: 3000
+        });
+        this.logEvent(`Built new station (#${this.nextStationId - 1})`);
+        return true;
+      }
+
+      upgradeStation(stationId) {
+        const st = this.stations.find(s => s.id === stationId);
+        if (!st) return false;
+        const cost = 200_000;
+        if (this.cash < cost) return false;
+        this.cash -= cost;
+        st.maintenanceCost += 500; // incremental
+        this.logEvent(`Upgraded station (#${stationId})`);
+        return true;
+      }
+
+      // ---------------- Route Management ----------------
+      createRoute(name, stops, type) {
+        // stops = [stationId1, stationId2, ...], type = 'Bus'|'Tram'|'Subway'
+        const cost = type === 'Bus' ? 0 : type === 'Tram' ? 200_000 : 1_000_000;
+        if (this.cash < cost) return false;
+        this.cash -= cost;
+        const route = {
+          id: this.nextRouteId++,
+          name,
+          stops: [...stops], 
+          length: stops.length, // simplistic
+          type,
+          fare: type === 'Bus' ? 2 : type === 'Tram' ? 3 : 5,
+          assignedFleetId: null
+        };
+        this.routes.push(route);
+        this.logEvent(`Created new ${type} route "${name}" (#${route.id})`);
+        return true;
+      }
+
+      assignFleetToRoute(routeId, fleetId) {
+        const rt = this.routes.find(r => r.id === routeId);
+        const fl = this.fleet.find(f => f.id === fleetId);
+        if (!rt || !fl || rt.type !== fl.type || rt.assignedFleetId === fleetId) return false;
+        rt.assignedFleetId = fleetId;
+        this.logEvent(`Assigned ${fl.type} (#${fleetId}) to route "${rt.name}"`);
+        return true;
+      }
+
+      // ---------------- Monthly Events ----------------
+      randomEvent() {
+        if (this.gameOver) return;
+        // 5% chance per month
+        if (this.rng() < 0.05) {
+          const events = [
+            'Fuel price spike increases maintenance costs by 10% this month.',
+            'City implements subsidy: +$100K revenue boost this month.',
+            'Major storm damages 2 random stations (extra $50K repair).',
+            'Ridership boost from festival: +20% ridership this month.',
+            'Competitor lowers fares: your ridership drops 5%.'
+          ];
+          const choice = events[Math.floor(this.rng() * events.length)];
+          this.handleEvent(choice);
+        }
+      }
+
+      handleEvent(description) {
+        if (description.includes('Fuel price')) {
+          // Increase all maintenance costs by 10% temporarily
+          this.fleet.forEach(f => (f.maintenanceCost *= 1.1));
+          this.stations.forEach(s => (s.maintenanceCost *= 1.1));
+        } else if (description.includes('subsidy')) {
+          this.cash += 100_000;
+        } else if (description.includes('storm')) {
+          // pick 2 random stations
+          if (this.stations.length >= 2) {
+            const idxs = [];
+            while (idxs.length < 2) {
+              const r = Math.floor(this.rng() * this.stations.length);
+              if (!idxs.includes(r)) idxs.push(r);
+            }
+            idxs.forEach(i => (this.cash -= 50000));
           }
-        });
-        return current;
-      }
-
-      // Electoral vote tally based on current polls
-      getElectoralTotals() {
-        let demEV = 0,
-          repEV = 0,
-          tossEV = 0;
-        const polls = this.getCurrentPolls();
-        Object.keys(STATES_DATA).forEach(state => {
-          const sd = STATES_DATA[state];
-          const demPct = polls[state];
-          let category = 'toss-up';
-          if (demPct >= 52) category = 'lean-d';
-          else if (demPct >= 55) category = 'safe-d';
-          else if (demPct <= 48) category = 'lean-r';
-          else if (demPct <= 45) category = 'safe-r';
-          else category = 'toss-up';
-
-          if (category === 'safe-d' || category === 'lean-d') demEV += sd.ev;
-          else if (category === 'safe-r' || category === 'lean-r') repEV += sd.ev;
-          else tossEV += sd.ev;
-        });
-        return { demEV, repEV, tossEV };
+        } else if (description.includes('festival')) {
+          this.baseRidershipPct += 0.05; // +5%
+        } else if (description.includes('competitor')) {
+          this.baseRidershipPct -= 0.05; // −5%
+        }
+        this.logEvent(`EVENT: ${description}`);
       }
     }
 
     const gameState = new GameState();
 
-    // ---- 5) Setup Modal ----
+    // ----------- 2) Components -----------
+
+    // 2.1) SetupModal: company name, initial setup
     function SetupModal({ onStart }) {
       const [name, setName] = useState('');
-      const [party, setParty] = useState('Democratic');
-      const [platform, setPlatform] = useState({});
-
-      useEffect(() => {
-        const initial = {};
-        ISSUES.forEach(issue => {
-          initial[issue.id] = issue.positions[0].id;
-        });
-        setPlatform(initial);
-      }, []);
-
-      const handlePositionChange = (issueId, posId) => {
-        setPlatform(prev => ({ ...prev, [issueId]: posId }));
-      };
-
       const handleSubmit = () => {
         if (!name.trim()) return;
-        onStart({ name: name.trim(), party, platform });
+        gameState.companyName = name.trim();
+        onStart();
       };
-
       return (
         <div className="modal">
           <div className="modal-content">
-            <h2>Candidate Setup</h2>
-            <div className="setup-form">
-              <div className="form-group">
-                <label className="form-label">Candidate Name</label>
-                <input
-                  className="form-input"
-                  type="text"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Party</label>
-                <select
-                  className="form-select"
-                  value={party}
-                  onChange={e => setParty(e.target.value)}
-                >
-                  <option value="Democratic">Democratic</option>
-                  <option value="Republican">Republican</option>
-                  <option value="Independent">Independent</option>
-                </select>
-              </div>
-              <div className="section-title">Build Your Platform</div>
-              {ISSUES.map(issue => (
-                <div key={issue.id} className="issue-group">
-                  <div className="issue-title">{issue.name}</div>
-                  <div className="position-options">
-                    {issue.positions.map(pos => (
-                      <label key={pos.id} className="position-option">
-                        <input
-                          type="radio"
-                          name={issue.id}
-                          value={pos.id}
-                          checked={platform[issue.id] === pos.id}
-                          onChange={() => handlePositionChange(issue.id, pos.id)}
-                        />
-                        {pos.name}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              ))}
-              <button className="btn btn-primary" onClick={handleSubmit}>
-                Start Campaign
-              </button>
+            <h2>Welcome, Transit Tycoon!</h2>
+            <div className="form-group">
+              <label className="form-label">Company Name</label>
+              <input
+                className="form-input"
+                type="text"
+                placeholder="Enter your company name"
+                value={name}
+                onChange={e => setName(e.target.value)}
+              />
             </div>
+            <button className="btn btn-primary" onClick={handleSubmit}>
+              Start New Game
+            </button>
           </div>
         </div>
       );
     }
 
-    // ---- 6) Sidebar for Weekly Actions & News ----
-    function Sidebar({ currentWeek, funds, onSpend, spendingThisWeek }) {
-      const [adInput, setAdInput] = useState(0);
+    // 2.2) SidebarControls: build stations, buy fleet, create routes
+    function SidebarControls({ refresh }) {
+      const [stationX, setStationX] = useState(250);
+      const [stationY, setStationY] = useState(250);
+      const [fleetType, setFleetType] = useState('Bus');
+      const [routeName, setRouteName] = useState('');
+      const [routeType, setRouteType] = useState('Bus');
+      const [routeStops, setRouteStops] = useState('');
 
-      const handleAllocate = () => {
-        if (adInput < 0) return;
-        if (adInput > funds) {
-          alert('Not enough funds.');
-          return;
-        }
-        onSpend(adInput);
-        setAdInput(0);
+      // Build Station
+      const handleBuildStation = () => {
+        const success = gameState.buildStation(Number(stationX), Number(stationY));
+        if (!success) alert('Not enough cash ($300K).');
+        refresh();
+      };
+
+      // Buy Fleet
+      const handleBuyFleet = () => {
+        const success = gameState.buyFleet(fleetType);
+        if (!success) alert('Not enough cash.');
+        refresh();
+      };
+
+      // Create Route
+      const handleCreateRoute = () => {
+        // routeStops as comma‐separated station IDs
+        const stops = routeStops
+          .split(',')
+          .map(s => Number(s.trim()))
+          .filter(n => !isNaN(n));
+        const success = gameState.createRoute(routeName.trim(), stops, routeType);
+        if (!success) alert('Failed: Check cash or invalid stops.');
+        refresh();
       };
 
       return (
         <div className="sidebar">
-          <div className="section-title">Week {currentWeek} Actions</div>
-          <div>
-            <p>
-              <strong>Funds Available:</strong> ${funds.toLocaleString()}
-            </p>
-            <div className="spending-category">
-              <div className="spending-title">Ad Spending This Week ($)</div>
+          <div className="section-title">Build & Fleet</div>
+          <div className="form-group">
+            <label className="form-label">New Station (x,y)</label>
+            <div style={{ display: 'flex', gap: '10px' }}>
               <input
-                type="number"
-                min="0"
-                max={funds}
-                step="10000"
                 className="form-input"
-                value={adInput}
-                onChange={e => setAdInput(Number(e.target.value))}
+                type="number"
+                placeholder="X"
+                value={stationX}
+                onChange={e => setStationX(e.target.value)}
+                style={{ width: '80px' }}
               />
-              <button className="btn btn-primary" onClick={handleAllocate}>
-                Allocate Ads
-              </button>
-              {spendingThisWeek > 0 && (
-                <p style={{ marginTop: '10px' }}>
-                  Allocated ${spendingThisWeek.toLocaleString()}
-                </p>
-              )}
+              <input
+                className="form-input"
+                type="number"
+                placeholder="Y"
+                value={stationY}
+                onChange={e => setStationY(e.target.value)}
+                style={{ width: '80px' }}
+              />
             </div>
+            <button className="btn btn-success" onClick={handleBuildStation}>
+              Build Station ($300K)
+            </button>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Buy Fleet</label>
+            <select
+              className="form-select"
+              value={fleetType}
+              onChange={e => setFleetType(e.target.value)}
+            >
+              <option value="Bus">Bus ($100K)</option>
+              <option value="Tram">Tram ($500K)</option>
+              <option value="Subway">Subway ($2M)</option>
+            </select>
+            <button className="btn btn-success" onClick={handleBuyFleet}>
+              Purchase
+            </button>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Create Route</label>
+            <input
+              className="form-input"
+              type="text"
+              placeholder="Route Name"
+              value={routeName}
+              onChange={e => setRouteName(e.target.value)}
+            />
+            <select
+              className="form-select"
+              value={routeType}
+              onChange={e => setRouteType(e.target.value)}
+            >
+              <option value="Bus">Bus</option>
+              <option value="Tram">Tram</option>
+              <option value="Subway">Subway</option>
+            </select>
+            <input
+              className="form-input"
+              type="text"
+              placeholder="Stops: e.g. 1,2,3"
+              value={routeStops}
+              onChange={e => setRouteStops(e.target.value)}
+            />
+            <button className="btn btn-success" onClick={handleCreateRoute}>
+              Create Route
+            </button>
           </div>
         </div>
       );
     }
 
-    // ---- 7) ElectoralMap with realistic polls + tooltips ----
-    function ElectoralMap({ currentPolls }) {
+    // 2.3) StationPanel: lists stations and allows upgrades
+    function StationPanel({ refresh }) {
+      const [upgradeId, setUpgradeId] = useState(null);
+      const stations = gameState.stations;
+
+      const handleUpgrade = (id) => {
+        const success = gameState.upgradeStation(id);
+        if (!success) alert('Not enough cash ($200K).');
+        refresh();
+      };
+
+      return (
+        <div className="right-panel">
+          <div className="section-title">Stations</div>
+          <table className="station-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Maint Cost</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stations.map(st => (
+                <tr key={st.id}>
+                  <td>{st.id}</td>
+                  <td>{st.name}</td>
+                  <td>${st.maintenanceCost.toLocaleString()}</td>
+                  <td>
+                    <button className="btn btn-primary" onClick={() => handleUpgrade(st.id)}>
+                      Upgrade ($200K)
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {stations.length === 0 && (
+                <tr>
+                  <td colSpan="4">No stations built yet.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    // 2.4) FleetPanel: lists fleet and allows retire/upgrades
+    function FleetPanel({ refresh }) {
+      const [selectedFleet, setSelectedFleet] = useState(null);
+      const fleet = gameState.fleet;
+
+      const handleRetire = (id) => {
+        gameState.retireFleet(id);
+        refresh();
+      };
+
+      const handleUpgradeFreq = (id) => {
+        const success = gameState.upgradeFleetFrequency(id);
+        if (!success) alert('Not enough cash or invalid.');
+        refresh();
+      };
+
+      return (
+        <div className="right-panel" style={{ marginTop: '20px' }}>
+          <div className="section-title">Fleet</div>
+          <table className="fleet-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Capacity</th>
+                <th>Freq</th>
+                <th>Maint</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {fleet.map(f => (
+                <tr key={f.id}>
+                  <td>{f.id}</td>
+                  <td>{f.type}</td>
+                  <td>{f.capacity}</td>
+                  <td>{f.frequency}/mo</td>
+                  <td>${f.maintenanceCost.toLocaleString()}</td>
+                  <td>
+                    <button className="btn btn-primary" onClick={() => handleUpgradeFreq(f.id)}>
+                      +Freq (${(50000 * f.frequency).toLocaleString()})
+                    </button>
+                    <button className="btn btn-danger" onClick={() => handleRetire(f.id)} style={{ marginLeft: '5px' }}>
+                      Retire
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {fleet.length === 0 && (
+                <tr>
+                  <td colSpan="6">No vehicles purchased yet.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    // 2.5) RoutePanel: lists routes and assign fleet
+    function RoutePanel({ refresh }) {
+      const [assignFleetId, setAssignFleetId] = useState('');
+      const [assignRouteId, setAssignRouteId] = useState('');
+
+      const routes = gameState.routes;
+      const fleet = gameState.fleet;
+
+      const handleAssign = () => {
+        const fId = Number(assignFleetId);
+        const rId = Number(assignRouteId);
+        const success = gameState.assignFleetToRoute(rId, fId);
+        if (!success) alert('Assign failed (mismatch type or invalid).');
+        refresh();
+      };
+
+      return (
+        <div className="right-panel" style={{ marginTop: '20px' }}>
+          <div className="section-title">Routes</div>
+          <table className="fleet-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Fare</th>
+                <th>Assigned</th>
+              </tr>
+            </thead>
+            <tbody>
+              {routes.map(r => (
+                <tr key={r.id}>
+                  <td>{r.id}</td>
+                  <td>{r.name}</td>
+                  <td>{r.type}</td>
+                  <td>${r.fare}</td>
+                  <td>{r.assignedFleetId || 'None'}</td>
+                </tr>
+              ))}
+              {routes.length === 0 && (
+                <tr>
+                  <td colSpan="5">No routes created yet.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+
+          {routes.length > 0 && fleet.length > 0 && (
+            <div style={{ marginTop: '10px' }}>
+              <div className="form-group">
+                <label className="form-label">Assign Fleet to Route</label>
+                <input
+                  className="form-input"
+                  type="number"
+                  placeholder="Fleet ID"
+                  value={assignFleetId}
+                  onChange={e => setAssignFleetId(e.target.value)}
+                  style={{ marginBottom: '5px' }}
+                />
+                <input
+                  className="form-input"
+                  type="number"
+                  placeholder="Route ID"
+                  value={assignRouteId}
+                  onChange={e => setAssignRouteId(e.target.value)}
+                  style={{ marginBottom: '5px' }}
+                />
+              </div>
+              <button className="btn btn-success" onClick={handleAssign}>
+                Assign
+              </button>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // 2.6) TransitMap: D3 visualization of stations & routes
+    function TransitMap() {
       const ref = useRef();
       const tooltip = d3.select('#tooltip');
 
@@ -752,39 +875,20 @@
           .attr('width', width)
           .attr('height', height);
 
-        const states = Object.keys(STATES_DATA);
-        const cols = 12;
-        const squareSize = width / cols;
-
-        states.forEach((abbr, i) => {
-          const row = Math.floor(i / cols);
-          const col = i % cols;
-          const x = col * squareSize;
-          const y = row * squareSize;
-          const demPct = currentPolls[abbr] || 50;
-          let category = 'toss-up';
-          if (demPct >= 55) category = 'safe-d';
-          else if (demPct >= 52) category = 'lean-d';
-          else if (demPct <= 45) category = 'safe-r';
-          else if (demPct <= 48) category = 'lean-r';
-          else category = 'toss-up';
-
+        // Draw stations as circles
+        gameState.stations.forEach(st => {
           svg
-            .append('rect')
-            .attr('x', x + 1)
-            .attr('y', y + 1)
-            .attr('width', squareSize - 2)
-            .attr('height', squareSize - 2)
-            .attr('class', `state-square ${category}`)
+            .append('circle')
+            .attr('cx', st.x)
+            .attr('cy', st.y)
+            .attr('r', 8)
+            .attr('fill', '#ff7f50')
+            .attr('stroke', '#333')
+            .attr('stroke-width', 1)
             .on('mouseover', function (event) {
-              d3.select(this).attr('stroke', '#000').attr('stroke-width', 2);
-              const sd = STATES_DATA[abbr];
-              const content = `
-                <strong>${sd.name} (${abbr})</strong><br/>
-                EV: ${sd.ev}<br/>
-                Poll: ${currentPolls[abbr].toFixed(1)}% DEM`;
+              d3.select(this).attr('r', 12);
               tooltip
-                .html(content)
+                .html(`${st.name} (ID: ${st.id})<br/>Maint: $${st.maintenanceCost}`)
                 .style('visibility', 'visible')
                 .style('left', event.pageX + 10 + 'px')
                 .style('top', event.pageY + 10 + 'px');
@@ -795,109 +899,195 @@
                 .style('top', event.pageY + 10 + 'px');
             })
             .on('mouseout', function () {
-              d3.select(this).attr('stroke', null);
+              d3.select(this).attr('r', 8);
               tooltip.style('visibility', 'hidden');
             });
-
-          svg
-            .append('text')
-            .attr('x', x + squareSize / 2)
-            .attr('y', y + squareSize / 2 + 5)
-            .attr('text-anchor', 'middle')
-            .attr('class', 'state-label')
-            .text(abbr)
-            .style('pointer-events', 'none')
-            .style('font-size', squareSize * 0.3)
-            .style('fill', '#fff');
         });
-      }, [currentPolls]);
 
-      return <div className="electoral-map" ref={ref}></div>;
+        // Draw routes as lines connecting stops
+        gameState.routes.forEach(rt => {
+          const stops = rt.stops.map(id => gameState.stations.find(s => s.id === id));
+          if (stops.length < 2) return;
+          const lineGenerator = d3.line().x(d => d.x).y(d => d.y);
+          svg
+            .append('path')
+            .datum(stops)
+            .attr('d', lineGenerator)
+            .attr('fill', 'none')
+            .attr('stroke', rt.type === 'Bus' ? '#1e90ff' : rt.type === 'Tram' ? '#32cd32' : '#8b008b')
+            .attr('stroke-width', 3)
+            .attr('opacity', 0.7)
+            .on('mouseover', function (event) {
+              d3.select(this).attr('stroke-width', 5);
+              tooltip
+                .html(`Route "${rt.name}"<br/>Type: ${rt.type}<br/>Fare: $${rt.fare}`)
+                .style('visibility', 'visible')
+                .style('left', event.pageX + 10 + 'px')
+                .style('top', event.pageY + 10 + 'px');
+            })
+            .on('mousemove', function (event) {
+              tooltip
+                .style('left', event.pageX + 10 + 'px')
+                .style('top', event.pageY + 10 + 'px');
+            })
+            .on('mouseout', function () {
+              d3.select(this).attr('stroke-width', 3);
+              tooltip.style('visibility', 'hidden');
+            });
+        });
+      }, [gameState.stations, gameState.routes]);
+
+      return <div className="map-container" ref={ref}></div>;
     }
 
-    // ---- 8) PollTable: show each state's polling ----
-    function PollTable({ currentPolls }) {
-      const states = Object.keys(STATES_DATA).sort((a, b) =>
-        STATES_DATA[a].ev < STATES_DATA[b].ev ? 1 : -1
-      ); // sort by EV descending
+    // 2.7) RidershipChart: monthly ridership line chart
+    function RidershipChart() {
+      const ref = useRef();
 
+      useEffect(() => {
+        const data = gameState.history.ridership.map((r, i) => ({
+          month: i + 1,
+          riders: r
+        }));
+        if (data.length === 0) return;
+
+        const margin = { top: 10, right: 30, bottom: 30, left: 50 };
+        const width = ref.current.clientWidth - margin.left - margin.right;
+        const height = ref.current.clientHeight - margin.top - margin.bottom;
+
+        const svg = d3
+          .select(ref.current)
+          .html('')
+          .append('svg')
+          .attr('width', width + margin.left + margin.right)
+          .attr('height', height + margin.top + margin.bottom)
+          .append('g')
+          .attr('transform', `translate(${margin.left},${margin.top})`);
+
+        const x = d3
+          .scaleLinear()
+          .domain([1, data.length])
+          .range([0, width]);
+        const y = d3
+          .scaleLinear()
+          .domain([0, d3.max(data, d => d.riders) * 1.1])
+          .range([height, 0]);
+
+        svg
+          .append('path')
+          .datum(data)
+          .attr('fill', 'none')
+          .attr('stroke', '#1e90ff')
+          .attr('stroke-width', 2)
+          .attr(
+            'd',
+            d3
+              .line()
+              .x(d => x(d.month))
+              .y(d => y(d.riders))
+          );
+
+        svg
+          .append('g')
+          .attr('transform', `translate(0,${height})`)
+          .call(d3.axisBottom(x).ticks(5));
+        svg.append('g').call(d3.axisLeft(y).ticks(5));
+      }, [gameState.history.ridership]);
+
+      return <div className="chart" ref={ref}></div>;
+    }
+
+    // 2.8) RevenueChart: monthly profit/cash chart
+    function RevenueChart() {
+      const ref = useRef();
+
+      useEffect(() => {
+        const cashData = gameState.history.cash.map((c, i) => ({
+          month: i + 1,
+          cash: c
+        }));
+        if (cashData.length === 0) return;
+
+        const margin = { top: 10, right: 30, bottom: 30, left: 50 };
+        const width = ref.current.clientWidth - margin.left - margin.right;
+        const height = ref.current.clientHeight - margin.top - margin.bottom;
+
+        const svg = d3
+          .select(ref.current)
+          .html('')
+          .append('svg')
+          .attr('width', width + margin.left + margin.right)
+          .attr('height', height + margin.top + margin.bottom)
+          .append('g')
+          .attr('transform', `translate(${margin.left},${margin.top})`);
+
+        const x = d3
+          .scaleLinear()
+          .domain([1, cashData.length])
+          .range([0, width]);
+        const y = d3
+          .scaleLinear()
+          .domain([0, d3.max(cashData, d => d.cash) * 1.1])
+          .range([height, 0]);
+
+        svg
+          .append('path')
+          .datum(cashData)
+          .attr('fill', 'none')
+          .attr('stroke', '#32cd32')
+          .attr('stroke-width', 2)
+          .attr(
+            'd',
+            d3
+              .line()
+              .x(d => x(d.month))
+              .y(d => y(d.cash))
+          );
+
+        svg
+          .append('g')
+          .attr('transform', `translate(0,${height})`)
+          .call(d3.axisBottom(x).ticks(5));
+        svg.append('g').call(d3.axisLeft(y).ticks(5));
+      }, [gameState.history.cash]);
+
+      return <div className="chart" ref={ref}></div>;
+    }
+
+    // 2.9) EventLog: scrollable list of events
+    function EventLog() {
       return (
-        <div>
-          <div className="section-title">Detailed State Polls (avg of last 3)</div>
-          <table className="poll-table">
-            <thead>
-              <tr>
-                <th>State</th>
-                <th>EV</th>
-                <th>DEM%</th>
-                <th>REP%</th>
-              </tr>
-            </thead>
-            <tbody>
-              {states.map(abbr => (
-                <tr key={abbr}>
-                  <td>{abbr}</td>
-                  <td>{STATES_DATA[abbr].ev}</td>
-                  <td>{currentPolls[abbr].toFixed(1)}</td>
-                  <td>{(100 - currentPolls[abbr]).toFixed(1)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="event-log">
+          <div className="section-title">Event Log</div>
+          {gameState.log.map((e, idx) => (
+            <div key={idx} className="event-item">
+              Month {e.month}: {e.text}
+            </div>
+          ))}
+          {gameState.log.length === 0 && <p>No events yet.</p>}
         </div>
       );
     }
 
-    // ---- 9) Main App ----
+    // ----------- 3) Main App -----------
     function App() {
       const [started, setStarted] = useState(gameState.gameStarted);
-      const [funds, setFunds] = useState(0);
-      const [currentWeek, setCurrentWeek] = useState(1);
-      const [spendingThisWeek, setSpendingThisWeek] = useState(0);
-      const [currentPolls, setCurrentPolls] = useState({});
-      const [electorals, setElectorals] = useState({ demEV: 0, repEV: 0, tossEV: 0 });
+      const [, updateState] = useState(); // to force re-render
 
-      // Start campaign
-      const handleStart = ({ name, party, platform }) => {
+      const refresh = () => {
+        updateState({});
+      };
+
+      const handleStart = () => {
         gameState.reset();
-        gameState.gameStarted = true;
-        gameState.candidate.name = name;
-        gameState.candidate.party = party;
-        gameState.setPlatform(platform);
-
-        setFunds(gameState.candidate.funds);
-        setCurrentWeek(gameState.currentWeek);
-        // Before first poll, we do an initial weekly update to populate polls
-        gameState.weeklyUpdate();
-        updateAfterWeek();
         setStarted(true);
+        refresh();
       };
 
-      // Update local state after each weeklyUpdate
-      const updateAfterWeek = () => {
-        const polls = gameState.getCurrentPolls();
-        setCurrentPolls(polls);
-
-        const ev = gameState.getElectoralTotals();
-        setElectorals(ev);
-
-        setFunds(gameState.candidate.funds);
-        setCurrentWeek(gameState.currentWeek);
-        setSpendingThisWeek(gameState.spendingThisWeek);
-      };
-
-      // Handle spending allocation for the week
-      const handleSpend = amount => {
-        gameState.spendingThisWeek = amount;
-        gameState.candidate.funds -= amount;
-        setFunds(gameState.candidate.funds);
-        setSpendingThisWeek(amount);
-      };
-
-      // Advance to next week
-      const advanceWeek = () => {
-        gameState.weeklyUpdate();
-        updateAfterWeek();
+      const handleNextMonth = () => {
+        gameState.randomEvent();
+        gameState.advanceMonth();
+        refresh();
       };
 
       if (!started) {
@@ -906,63 +1096,53 @@
 
       return (
         <div className="container">
-          <div className="game-header">
-            <div className="game-title">
-              {gameState.candidate.name} ({gameState.candidate.party})
-            </div>
+          <div className="header">
+            <div className="header-title">{gameState.companyName} Transit Tycoon</div>
             <div className="stats-bar">
               <div className="stat-item">
-                <div className="stat-value">${funds.toLocaleString()}</div>
-                <div className="stat-label">Funds</div>
+                <div className="stat-value">Month {gameState.currentMonth}</div>
+                <div className="stat-label">Time</div>
               </div>
               <div className="stat-item">
-                <div className="stat-value">Week {currentWeek}</div>
-                <div className="stat-label">Campaign Week</div>
+                <div className="stat-value">${gameState.cash.toLocaleString()}</div>
+                <div className="stat-label">Cash</div>
               </div>
               <div className="stat-item">
-                <div className="stat-value">
-                  {electorals.demEV}D / {electorals.repEV}R / {electorals.tossEV}T
-                </div>
-                <div className="stat-label">Electoral Votes</div>
+                <div className="stat-value">${gameState.revenue.toLocaleString()}</div>
+                <div className="stat-label">Revenue</div>
               </div>
-              <button className="btn btn-danger" onClick={advanceWeek}>
-                Advance Week
+              <div className="stat-item">
+                <div className="stat-value">${gameState.expenses.toLocaleString()}</div>
+                <div className="stat-label">Expenses</div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-value">${gameState.monthlyProfit.toLocaleString()}</div>
+                <div className="stat-label">Profit</div>
+              </div>
+              <button className="btn btn-danger" onClick={handleNextMonth} disabled={gameState.gameOver}>
+                Advance Month
               </button>
             </div>
           </div>
 
           <div className="main-content">
-            <Sidebar
-              currentWeek={currentWeek}
-              funds={funds}
-              onSpend={handleSpend}
-              spendingThisWeek={spendingThisWeek}
-            />
+            <SidebarControls refresh={refresh} />
 
             <div className="central-panel">
-              <ElectoralMap currentPolls={currentPolls} />
-              <PollTable currentPolls={currentPolls} />
+              <div className="section-title">Transit Network Map</div>
+              <TransitMap />
+
+              <div className="section-title">Performance Charts</div>
+              <RidershipChart />
+              <RevenueChart />
+
+              <EventLog />
             </div>
 
-            <div className="sidebar">
-              <div className="section-title">Instructions</div>
-              <p>
-                Each week you may allocate some of your funds to state‐level ad buys
-                (allocate to toss‐up states only). Those ads shift your underlying
-                “true support” in those states by +0.5% for every \$1 million spent.
-              </p>
-              <p>
-                Polls are conducted weekly with a ±3% margin of error. The displayed poll
-                is the average of the last three weekly polls.
-              </p>
-              <p>
-                Electoral vote totals update based on current polling:  
-                • Safe/D/Lean/D states for you count toward your side.  
-                • Toss‐ups remain uncalled.
-              </p>
-              <p>
-                Advance week to see fundraising, ad effects, and new polls.
-              </p>
+            <div className="right-panel">
+              <StationPanel refresh={refresh} />
+              <FleetPanel refresh={refresh} />
+              <RoutePanel refresh={refresh} />
             </div>
           </div>
         </div>
