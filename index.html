@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Glyphs: Ancient Symbol Puzzle</title>
+  <style>
+    /* Reset & Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #1e1e2e 0%, #2d3748 100%);
+      color: #f5f5f5;
+      font-family: 'Georgia', serif;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* Game Container */
+    #game-container {
+      width: 100%;
+      max-width: 600px;
+      padding: 20px;
+      background: rgba(45, 45, 62, 0.9);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Header & Controls */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, #d4af37, #ffd700);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* Level Info */
+    .level-info {
+      font-size: 1.1rem;
+      color: #d4af37;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    /* Grid Container */
+    #grid-container {
+      display: grid;
+      gap: 3px;
+      justify-content: center;
+      margin: 20px 0;
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+    }
+
+    /* Tile Styles */
+    .tile {
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-radius: 4px;
+      position: relative;
+      background: #4a5568;
+      border: 2px solid #2d3748;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #d4af37;
+      user-select: none;
+    }
+
+    /* Hover no longer overrides rotation */
+    .tile:hover {
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+      border-color: #d4af37;
+    }
+
+    .tile.correct {
+      background: linear-gradient(135deg, #2d5a27, #38a169);
+      box-shadow: 0 0 8px rgba(56, 161, 105, 0.5);
+      border-color: #38a169;
+    }
+
+    .tile.rotating {
+      transform: rotate(90deg) scale(1.1);
+    }
+
+    /* Completion Message Area */
+    .completion-message {
+      text-align: center;
+      margin: 20px 0;
+      font-size: 1.2rem;
+      color: #38a169;
+      font-weight: bold;
+    }
+
+    /* Button Styles */
+    button {
+      background: linear-gradient(135deg, #4a90e2, #667eea);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      background: linear-gradient(135deg, #5ba0f2, #7690fa);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      background: #4a5568;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    #close-lore-btn {
+      background: linear-gradient(135deg, #d4af37, #ffd700);
+      color: #2d3748;
+      font-weight: bold;
+    }
+
+    #close-lore-btn:hover {
+      background: linear-gradient(135deg, #e4bf47, #ffef10);
+    }
+
+    /* Lore Modal – Hidden by default */
+    #lore-modal.hidden {
+      display: none;
+    }
+
+    #lore-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Lore Content Box */
+    #lore-content {
+      background: linear-gradient(135deg, #2d3748, #4a5568);
+      color: #f5f5f5;
+      max-width: 500px;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+      border: 2px solid #d4af37;
+      animation: slideIn 0.4s ease;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(-50px) scale(0.9); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    #lore-content h2 {
+      color: #d4af37;
+      margin-bottom: 15px;
+      font-size: 1.8rem;
+    }
+
+    /* Rune “Image” as a Symbol Container */
+    #rune-image {
+      max-width: 120px;
+      height: 120px;
+      margin: 15px auto;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #d4af37, #ffd700);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      color: #2d3748;
+      box-shadow: 0 4px 16px rgba(212, 175, 55, 0.4);
+    }
+
+    #lore-text {
+      line-height: 1.6;
+      margin: 20px 0;
+      font-size: 1.1rem;
+      color: #e2e8f0;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 600px) {
+      .tile {
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      header {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      #lore-content {
+        margin: 20px;
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <header>
+      <h1>Glyphs</h1>
+      <div class="controls">
+        <button id="reset-btn">Reset</button>
+        <button id="next-level-btn" disabled>Next Level</button>
+      </div>
+    </header>
+
+    <div class="level-info">
+      <span id="level-display">Level 1</span>
+    </div>
+
+    <div id="grid-container"></div>
+    <div id="completion-area"></div>
+
+    <div id="lore-modal" class="hidden">
+      <div id="lore-content">
+        <h2>Ancient Rune Revealed</h2>
+        <div id="rune-image"></div>
+        <p id="lore-text"></p>
+        <button id="close-lore-btn">Continue Your Journey</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // —— Level Data —— 
+    const levels = [
+      {
+        id: 1,
+        gridSize: 3,
+        tiles: [
+          [
+            { symbolType: 0, initialRotation: 2, correctRotation: 0 },
+            { symbolType: 1, initialRotation: 3, correctRotation: 1 },
+            { symbolType: 2, initialRotation: 1, correctRotation: 0 }
+          ],
+          [
+            { symbolType: 2, initialRotation: 0, correctRotation: 2 },
+            { symbolType: 0, initialRotation: 1, correctRotation: 3 },
+            { symbolType: 1, initialRotation: 2, correctRotation: 0 }
+          ],
+          [
+            { symbolType: 1, initialRotation: 1, correctRotation: 2 },
+            { symbolType: 2, initialRotation: 3, correctRotation: 1 },
+            { symbolType: 0, initialRotation: 0, correctRotation: 1 }
+          ]
+        ],
+        loreText: "Long ago, the ancients believed that the Circle of Urix could bend reality itself. Once assembled, this sacred glyph grants the bearer clarity of mind and the wisdom to see beyond the veil of illusion.",
+        runeSymbol: "◉"
+      },
+      {
+        id: 2,
+        gridSize: 3,
+        tiles: [
+          [
+            { symbolType: 3, initialRotation: 1, correctRotation: 0 },
+            { symbolType: 4, initialRotation: 2, correctRotation: 3 },
+            { symbolType: 5, initialRotation: 0, correctRotation: 2 }
+          ],
+          [
+            { symbolType: 5, initialRotation: 3, correctRotation: 1 },
+            { symbolType: 3, initialRotation: 2, correctRotation: 0 },
+            { symbolType: 4, initialRotation: 1, correctRotation: 2 }
+          ],
+          [
+            { symbolType: 4, initialRotation: 0, correctRotation: 1 },
+            { symbolType: 5, initialRotation: 2, correctRotation: 3 },
+            { symbolType: 3, initialRotation: 3, correctRotation: 2 }
+          ]
+        ],
+        loreText: "Legend speaks of the Staff of Keila—a conduit between mortals and the divine. When its fragments align, the staff channels the ancient power that once raised mountains and parted seas.",
+        runeSymbol: "⚡"
+      },
+      {
+        id: 3,
+        gridSize: 4,
+        tiles: [
+          [
+            { symbolType: 0, initialRotation: 1, correctRotation: 0 },
+            { symbolType: 1, initialRotation: 2, correctRotation: 1 },
+            { symbolType: 2, initialRotation: 3, correctRotation: 0 },
+            { symbolType: 3, initialRotation: 0, correctRotation: 2 }
+          ],
+          [
+            { symbolType: 2, initialRotation: 2, correctRotation: 3 },
+            { symbolType: 0, initialRotation: 1, correctRotation: 2 },
+            { symbolType: 3, initialRotation: 0, correctRotation: 1 },
+            { symbolType: 1, initialRotation: 3, correctRotation: 0 }
+          ],
+          [
+            { symbolType: 1, initialRotation: 2, correctRotation: 3 },
+            { symbolType: 3, initialRotation: 1, correctRotation: 0 },
+            { symbolType: 0, initialRotation: 0, correctRotation: 2 },
+            { symbolType: 2, initialRotation: 3, correctRotation: 1 }
+          ],
+          [
+            { symbolType: 3, initialRotation: 2, correctRotation: 1 },
+            { symbolType: 2, initialRotation: 0, correctRotation: 3 },
+            { symbolType: 1, initialRotation: 1, correctRotation: 2 },
+            { symbolType: 0, initialRotation: 3, correctRotation: 0 }
+          ]
+        ],
+        loreText: "The Eye of Vashra once guided kings through their darkest hours. This all-seeing symbol reveals hidden truths and illuminates the path forward when all hope seems lost.",
+        runeSymbol: "👁"
+      },
+      {
+        id: 4,
+        gridSize: 4,
+        tiles: [
+          [
+            { symbolType: 4, initialRotation: 3, correctRotation: 0 },
+            { symbolType: 5, initialRotation: 1, correctRotation: 2 },
+            { symbolType: 6, initialRotation: 2, correctRotation: 1 },
+            { symbolType: 7, initialRotation: 0, correctRotation: 3 }
+          ],
+          [
+            { symbolType: 6, initialRotation: 1, correctRotation: 0 },
+            { symbolType: 4, initialRotation: 3, correctRotation: 1 },
+            { symbolType: 7, initialRotation: 2, correctRotation: 3 },
+            { symbolType: 5, initialRotation: 0, correctRotation: 2 }
+          ],
+          [
+            { symbolType: 7, initialRotation: 2, correctRotation: 1 },
+            { symbolType: 6, initialRotation: 0, correctRotation: 3 },
+            { symbolType: 5, initialRotation: 3, correctRotation: 0 },
+            { symbolType: 4, initialRotation: 1, correctRotation: 2 }
+          ],
+          [
+            { symbolType: 5, initialRotation: 3, correctRotation: 1 },
+            { symbolType: 7, initialRotation: 1, correctRotation: 0 },
+            { symbolType: 4, initialRotation: 0, correctRotation: 2 },
+            { symbolType: 6, initialRotation: 2, correctRotation: 3 }
+          ]
+        ],
+        loreText: "In the deepest vaults of the forgotten temple lies the Seal of Eternity. When properly aligned, this glyph grants its keeper mastery over time itself, allowing glimpses into both past and future.",
+        runeSymbol: "∞"
+      },
+      {
+        id: 5,
+        gridSize: 5,
+        tiles: [
+          [
+            { symbolType: 0, initialRotation: 2, correctRotation: 0 },
+            { symbolType: 1, initialRotation: 1, correctRotation: 3 },
+            { symbolType: 2, initialRotation: 3, correctRotation: 1 },
+            { symbolType: 3, initialRotation: 0, correctRotation: 2 },
+            { symbolType: 4, initialRotation: 2, correctRotation: 0 }
+          ],
+          [
+            { symbolType: 3, initialRotation: 1, correctRotation: 2 },
+            { symbolType: 0, initialRotation: 3, correctRotation: 1 },
+            { symbolType: 4, initialRotation: 0, correctRotation: 3 },
+            { symbolType: 1, initialRotation: 2, correctRotation: 0 },
+            { symbolType: 2, initialRotation: 1, correctRotation: 2 }
+          ],
+          [
+            { symbolType: 2, initialRotation: 3, correctRotation: 0 },
+            { symbolType: 4, initialRotation: 1, correctRotation: 2 },
+            { symbolType: 0, initialRotation: 0, correctRotation: 1 },
+            { symbolType: 3, initialRotation: 2, correctRotation: 3 },
+            { symbolType: 1, initialRotation: 3, correctRotation: 0 }
+          ],
+          [
+            { symbolType: 1, initialRotation: 0, correctRotation: 2 },
+            { symbolType: 2, initialRotation: 2, correctRotation: 0 },
+            { symbolType: 3, initialRotation: 1, correctRotation: 3 },
+            { symbolType: 4, initialRotation: 3, correctRotation: 1 },
+            { symbolType: 0, initialRotation: 1, correctRotation: 2 }
+          ],
+          [
+            { symbolType: 4, initialRotation: 2, correctRotation: 1 },
+            { symbolType: 3, initialRotation: 0, correctRotation: 0 },
+            { symbolType: 1, initialRotation: 1, correctRotation: 2 },
+            { symbolType: 0, initialRotation: 3, correctRotation: 1 },
+            { symbolType: 2, initialRotation: 2, correctRotation: 3 }
+          ]
+        ],
+        loreText: "The Crown of Ancients represents the ultimate achievement of the lost civilization. Only those who possess true wisdom and patience can unlock its secrets, earning the right to wield the power of the ancient masters.",
+        runeSymbol: "♦"
+      }
+    ];
+
+    // —— Symbol Set (for tile faces) —— 
+    const symbols = ['◐', '◑', '◒', '◓', '⟡', '⟢', '⬢', '⬡'];
+
+    // —— Tile Class —— 
+    class Tile {
+      constructor(symbolType, initialRot, correctRot, tileSize) {
+        this.symbolType = symbolType;
+        this.currentRotation = initialRot;
+        this.correctRotation = correctRot;
+        this.tileSize = tileSize;
+
+        this.element = document.createElement("div");
+        this.element.classList.add("tile");
+        this.updateAppearance();
+
+        this.element.addEventListener("click", () => this.rotate());
+      }
+
+      rotate() {
+        this.element.classList.add("rotating");
+        this.currentRotation = (this.currentRotation + 1) % 4;
+
+        // Wait through the CSS rotation animation, then finalize
+        setTimeout(() => {
+          this.updateAppearance();
+          this.element.classList.remove("rotating");
+          // Notify parent Grid that a tile rotated
+          this.element.dispatchEvent(new CustomEvent("tileRotated", { bubbles: true }));
+        }, 150);
+      }
+
+      updateAppearance() {
+        // Pick the base symbol from the symbols array
+        const baseSymbol = symbols[this.symbolType] || symbols[this.symbolType % symbols.length];
+        this.element.textContent = baseSymbol;
+
+        // Rotate the DIV according to currentRotation
+        const angle = this.currentRotation * 90;
+        this.element.style.transform = `rotate(${angle}deg)`;
+
+        // Highlight if it's in the correct orientation
+        if (this.isCorrect()) {
+          this.element.classList.add("correct");
+        } else {
+          this.element.classList.remove("correct");
+        }
+      }
+
+      isCorrect() {
+        return this.currentRotation === this.correctRotation;
+      }
+
+      attachTo(parent) {
+        parent.appendChild(this.element);
+      }
+    }
+
+    // —— Grid Class —— 
+    class Grid {
+      constructor(levelConfig, container) {
+        this.levelConfig = levelConfig;
+        this.container = container;
+        this.size = levelConfig.gridSize;
+        this.tiles = [];
+        this.tileSize = 60;
+        this.isCompleted = false;
+
+        this.buildGrid();
+        this.container.addEventListener("tileRotated", () => this.onTileRotated());
+      }
+
+      buildGrid() {
+        // Clear any previous tiles
+        this.container.innerHTML = "";
+        // Define CSS grid dimensions
+        this.container.style.gridTemplateColumns = `repeat(${this.size}, ${this.tileSize}px)`;
+        this.container.style.gridTemplateRows = `repeat(${this.size}, ${this.tileSize}px)`;
+
+        const tileData = this.levelConfig.tiles;
+        for (let row = 0; row < this.size; row++) {
+          this.tiles[row] = [];
+          for (let col = 0; col < this.size; col++) {
+            const { symbolType, initialRotation, correctRotation } = tileData[row][col];
+            const tile = new Tile(symbolType, initialRotation, correctRotation, this.tileSize);
+            tile.attachTo(this.container);
+            this.tiles[row][col] = tile;
+          }
+        }
+      }
+
+      onTileRotated() {
+        if (!this.isCompleted && this.checkSolved()) {
+          this.handleLevelComplete();
+        }
+      }
+
+      checkSolved() {
+        for (let row = 0; row < this.size; row++) {
+          for (let col = 0; col < this.size; col++) {
+            if (!this.tiles[row][col].isCorrect()) {
+              return false;
+            }
+          }
+        }
+        return true;
+      }
+
+      handleLevelComplete() {
+        this.isCompleted = true;
+        // Disable further rotations on all tiles
+        for (let row = 0; row < this.size; row++) {
+          for (let col = 0; col < this.size; col++) {
+            this.tiles[row][col].element.style.pointerEvents = "none";
+          }
+        }
+        // Brief delay for visual effect, then notify UI layer
+        setTimeout(() => {
+          this.container.dispatchEvent(
+            new CustomEvent("levelSolved", { detail: this.levelConfig })
+          );
+        }, 500);
+      }
+
+      resetGrid() {
+        this.isCompleted = false;
+        const tileData = this.levelConfig.tiles;
+
+        for (let row = 0; row < this.size; row++) {
+          for (let col = 0; col < this.size; col++) {
+            const initialRot = tileData[row][col].initialRotation;
+            this.tiles[row][col].currentRotation = initialRot;
+            this.tiles[row][col].updateAppearance();
+            this.tiles[row][col].element.style.pointerEvents = "auto";
+          }
+        }
+      }
+    }
+
+    // —— UI Manager —— 
+    class UIManager {
+      constructor(levelsData, gridContainer) {
+        this.levelsData = levelsData;
+        this.gridContainer = gridContainer;
+        this.currentLevelIndex = 0;
+        this.currentGrid = null;
+
+        // DOM handles
+        this.resetBtn = document.getElementById("reset-btn");
+        this.nextLevelBtn = document.getElementById("next-level-btn");
+        this.levelDisplay = document.getElementById("level-display");
+        this.loreModal = document.getElementById("lore-modal");
+        this.runeImageEl = document.getElementById("rune-image");
+        this.loreTextEl = document.getElementById("lore-text");
+        this.closeLoreBtn = document.getElementById("close-lore-btn");
+        this.completionArea = document.getElementById("completion-area");
+
+        // Event listeners
+        this.resetBtn.addEventListener("click", () => this.resetLevel());
+        this.nextLevelBtn.addEventListener("click", () => this.loadNextLevel());
+        this.closeLoreBtn.addEventListener("click", () => this.closeLore());
+
+        // Load the first level
+        this.loadLevel(this.currentLevelIndex);
+      }
+
+      loadLevel(index) {
+        const levelConfig = this.levelsData[index];
+
+        // If there was a previous grid, remove its listener
+        if (this.currentGrid) {
+          this.gridContainer.removeEventListener("levelSolved", this.onLevelSolvedHandler);
+        }
+
+        // Instantiate a brand-new Grid
+        this.currentGrid = new Grid(levelConfig, this.gridContainer);
+
+        // Listen for when this level is solved
+        this.onLevelSolvedHandler = (e) => this.onLevelSolved(e);
+        this.gridContainer.addEventListener("levelSolved", this.onLevelSolvedHandler);
+
+        // Update UI text & button states
+        this.levelDisplay.textContent = `Level ${levelConfig.id}`;
+        this.nextLevelBtn.disabled = true;
+        this.resetBtn.disabled = false;
+        this.completionArea.innerHTML = "";
+      }
+
+      resetLevel() {
+        if (this.currentGrid) {
+          this.currentGrid.resetGrid();
+          this.nextLevelBtn.disabled = true;
+          this.resetBtn.disabled = false;
+          this.completionArea.innerHTML = "";
+        }
+      }
+
+      onLevelSolved(event) {
+        const levelConfig = event.detail;
+
+        // Show a temporary completion message
+        this.completionArea.innerHTML =
+          '<div class="completion-message">🎉 Ancient Rune Revealed! 🎉</div>';
+
+        // After a short pause, reveal the lore modal
+        setTimeout(() => {
+          this.runeImageEl.textContent = levelConfig.runeSymbol;
+          this.loreTextEl.textContent = levelConfig.loreText;
+          this.loreModal.classList.remove("hidden");
+        }, 1000);
+
+        // Disable the Reset button now that level is done
+        this.resetBtn.disabled = true;
+      }
+
+      closeLore() {
+        // Hide the modal
+        this.loreModal.classList.add("hidden");
+
+        // If more levels remain, enable Next Level
+        if (this.currentLevelIndex < this.levelsData.length - 1) {
+          this.nextLevelBtn.disabled = false;
+        } else {
+          // All levels completed
+          this.completionArea.innerHTML =
+            '<div class="completion-message">🏆 Congratulations! You have unlocked all ancient secrets! 🏆</div>';
+        }
+      }
+
+      loadNextLevel() {
+        if (this.currentLevelIndex < this.levelsData.length - 1) {
+          this.currentLevelIndex++;
+          this.loadLevel(this.currentLevelIndex);
+        }
+      }
+    }
+
+    // —— Initialize on DOM Ready —— 
+    document.addEventListener("DOMContentLoaded", () => {
+      const gridContainer = document.getElementById("grid-container");
+      new UIManager(levels, gridContainer);
+    });
+  </script>
+</body>
+</html>
