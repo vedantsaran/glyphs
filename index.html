@@ -3,685 +3,513 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Glyphs: Ancient Symbol Puzzle</title>
+  <title>Mini Republics</title>
   <style>
-    /* Reset & Base Styles */
+    /* ─────── Global Reset & Base Styles ─────── */
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
-
     body {
+      background: #f4f4f4;
+      color: #333;
+      font-family: "Segoe UI", sans-serif;
       display: flex;
-      justify-content: center;
       align-items: center;
-      background: linear-gradient(135deg, #1e1e2e 0%, #2d3748 100%);
-      color: #f5f5f5;
-      font-family: 'Georgia', serif;
+      justify-content: center;
       min-height: 100vh;
       padding: 20px;
     }
+    button {
+      font-family: inherit;
+      font-size: 1rem;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    button:not(:disabled):hover {
+      transform: translateY(-2px);
+    }
 
-    /* Game Container */
+    /* ─────── Container ─────── */
     #game-container {
       width: 100%;
       max-width: 600px;
-      padding: 20px;
-      background: rgba(45, 45, 62, 0.9);
-      border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
     }
 
-    /* Header & Controls */
+    /* ─────── Header ─────── */
     header {
+      background: #2e8b57;
+      color: #fff;
+      padding: 16px 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      gap: 10px;
     }
-
-    h1 {
-      font-size: 2.5rem;
-      background: linear-gradient(135deg, #d4af37, #ffd700);
-      background-clip: text;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    header h1 {
+      font-size: 1.5rem;
     }
-
-    .controls {
+    #stats {
       display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 0.95rem;
     }
-
-    /* Level Info */
-    .level-info {
-      font-size: 1.1rem;
-      color: #d4af37;
-      margin-bottom: 10px;
-      text-align: center;
-    }
-
-    /* Grid Container */
-    #grid-container {
-      display: grid;
-      gap: 3px;
-      justify-content: center;
-      margin: 20px 0;
-      padding: 15px;
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 8px;
-    }
-
-    /* Tile Styles */
-    .tile {
-      width: 60px;
-      height: 60px;
-      cursor: pointer;
-      transition: all 0.3s ease;
+    #stats div {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 6px 10px;
       border-radius: 4px;
-      position: relative;
-      background: #4a5568;
-      border: 2px solid #2d3748;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      color: #d4af37;
-      user-select: none;
     }
 
-    /* Hover no longer overrides rotation */
-    .tile:hover {
-      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
-      border-color: #d4af37;
+    /* ─────── Main Content ─────── */
+    main {
+      padding: 24px;
     }
-
-    .tile.correct {
-      background: linear-gradient(135deg, #2d5a27, #38a169);
-      box-shadow: 0 0 8px rgba(56, 161, 105, 0.5);
-      border-color: #38a169;
-    }
-
-    .tile.rotating {
-      transform: rotate(90deg) scale(1.1);
-    }
-
-    /* Completion Message Area */
-    .completion-message {
-      text-align: center;
-      margin: 20px 0;
-      font-size: 1.2rem;
-      color: #38a169;
-      font-weight: bold;
-    }
-
-    /* Button Styles */
-    button {
-      background: linear-gradient(135deg, #4a90e2, #667eea);
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 1rem;
-      font-weight: 500;
-      transition: all 0.2s ease;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-      background: linear-gradient(135deg, #5ba0f2, #7690fa);
-    }
-
-    button:active {
-      transform: translateY(0);
-    }
-
-    button:disabled {
-      background: #4a5568;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-
-    #close-lore-btn {
-      background: linear-gradient(135deg, #d4af37, #ffd700);
-      color: #2d3748;
-      font-weight: bold;
-    }
-
-    #close-lore-btn:hover {
-      background: linear-gradient(135deg, #e4bf47, #ffef10);
-    }
-
-    /* Lore Modal – Hidden by default */
-    #lore-modal.hidden {
-      display: none;
-    }
-
-    #lore-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    /* Lore Content Box */
-    #lore-content {
-      background: linear-gradient(135deg, #2d3748, #4a5568);
-      color: #f5f5f5;
-      max-width: 500px;
-      padding: 30px;
-      border-radius: 12px;
-      text-align: center;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-      border: 2px solid #d4af37;
-      animation: slideIn 0.4s ease;
-    }
-
-    @keyframes slideIn {
-      from { transform: translateY(-50px) scale(0.9); opacity: 0; }
-      to { transform: translateY(0) scale(1); opacity: 1; }
-    }
-
-    #lore-content h2 {
-      color: #d4af37;
-      margin-bottom: 15px;
-      font-size: 1.8rem;
-    }
-
-    /* Rune “Image” as a Symbol Container */
-    #rune-image {
-      max-width: 120px;
-      height: 120px;
-      margin: 15px auto;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #d4af37, #ffd700);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 48px;
-      color: #2d3748;
-      box-shadow: 0 4px 16px rgba(212, 175, 55, 0.4);
-    }
-
-    #lore-text {
-      line-height: 1.6;
-      margin: 20px 0;
+    #week-display {
       font-size: 1.1rem;
-      color: #e2e8f0;
+      margin-bottom: 16px;
+      text-align: center;
+      color: #2e8b57;
+    }
+    #decision-prompt {
+      margin-bottom: 16px;
+      font-size: 1.2rem;
+    }
+    #choices {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .choice-btn {
+      background: #2e8b57;
+      color: #fff;
+    }
+    .choice-btn:hover {
+      background: #3aa76e;
+    }
+    #outcome {
+      margin-bottom: 24px;
+      font-size: 1rem;
+      line-height: 1.4;
+    }
+    #next-btn {
+      background: #2e8b57;
+      color: #fff;
+      display: block;
+      margin: 0 auto;
     }
 
-    /* Responsive Adjustments */
-    @media (max-width: 600px) {
-      .tile {
-        width: 45px;
-        height: 45px;
-        font-size: 18px;
-      }
+    /* ─────── Footer ─────── */
+    footer {
+      background: #fafafa;
+      text-align: center;
+      font-size: 0.85rem;
+      padding: 12px;
+      color: #666;
+    }
 
-      h1 {
-        font-size: 2rem;
-      }
-
+    /* ─────── Responsive ─────── */
+    @media (max-width: 480px) {
       header {
         flex-direction: column;
-        text-align: center;
+        gap: 8px;
       }
-
-      #lore-content {
-        margin: 20px;
-        padding: 20px;
+      #stats {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      main {
+        padding: 16px;
+      }
+      .choice-btn {
+        font-size: 0.9rem;
+        padding: 8px 12px;
       }
     }
   </style>
 </head>
 <body>
   <div id="game-container">
+    <!-- HEADER: Republic Name & Key Stats -->
     <header>
-      <h1>Glyphs</h1>
-      <div class="controls">
-        <button id="reset-btn">Reset</button>
-        <button id="next-level-btn" disabled>Next Level</button>
+      <h1>Mini Republics</h1>
+      <div id="stats">
+        <div>Treasury: $<span id="stat-treasury">-</span> M</div>
+        <div>Population: <span id="stat-pop">-</span> K</div>
+        <div>Approval %: <span id="stat-approval">-</span>%</div>
+        <div>Relations: A <sup><span id="stat-rel-A">-</span></sup> | B <sup><span id="stat-rel-B">-</span></sup></div>
       </div>
     </header>
 
-    <div class="level-info">
-      <span id="level-display">Level 1</span>
-    </div>
+    <!-- MAIN: Weekly Prompt, Choices, Outcome, Next -->
+    <main>
+      <div id="week-display">Week 1, Year 1</div>
+      <div id="decision-prompt">Loading...</div>
+      <div id="choices"></div>
+      <div id="outcome"></div>
+      <button id="next-btn" disabled>Next Week</button>
+    </main>
 
-    <div id="grid-container"></div>
-    <div id="completion-area"></div>
-
-    <div id="lore-modal" class="hidden">
-      <div id="lore-content">
-        <h2>Ancient Rune Revealed</h2>
-        <div id="rune-image"></div>
-        <p id="lore-text"></p>
-        <button id="close-lore-btn">Continue Your Journey</button>
-      </div>
-    </div>
+    <!-- FOOTER: Credits -->
+    <footer>© Mini Republics • Built with JavaScript</footer>
   </div>
 
   <script>
-    // —— Level Data —— 
-    const levels = [
+    /******************************************************
+     *   Mini Republics – Full Implementation in One File  *
+     ******************************************************/
+
+    // ─────── Game State ───────
+    const state = {
+      week: 1,
+      year: 1,
+      treasury: 50,            // in millions
+      population: 100,         // in thousands
+      approval: 50,            // percentage (0–100)
+      relations: {             // relations with two neighbors
+        Alpha: 50,             // 0–100 scale
+        Beta: 50
+      }
+    };
+
+    // ─────── Decision Pool ───────
+    // Each decision has a prompt and two or three choices.  
+    // Each choice applies some function that mutates `state`.
+    const decisions = [
       {
-        id: 1,
-        gridSize: 3,
-        tiles: [
-          [
-            { symbolType: 0, initialRotation: 2, correctRotation: 0 },
-            { symbolType: 1, initialRotation: 3, correctRotation: 1 },
-            { symbolType: 2, initialRotation: 1, correctRotation: 0 }
-          ],
-          [
-            { symbolType: 2, initialRotation: 0, correctRotation: 2 },
-            { symbolType: 0, initialRotation: 1, correctRotation: 3 },
-            { symbolType: 1, initialRotation: 2, correctRotation: 0 }
-          ],
-          [
-            { symbolType: 1, initialRotation: 1, correctRotation: 2 },
-            { symbolType: 2, initialRotation: 3, correctRotation: 1 },
-            { symbolType: 0, initialRotation: 0, correctRotation: 1 }
-          ]
-        ],
-        loreText: "Long ago, the ancients believed that the Circle of Urix could bend reality itself. Once assembled, this sacred glyph grants the bearer clarity of mind and the wisdom to see beyond the veil of illusion.",
-        runeSymbol: "◉"
-      },
-      {
-        id: 2,
-        gridSize: 3,
-        tiles: [
-          [
-            { symbolType: 3, initialRotation: 1, correctRotation: 0 },
-            { symbolType: 4, initialRotation: 2, correctRotation: 3 },
-            { symbolType: 5, initialRotation: 0, correctRotation: 2 }
-          ],
-          [
-            { symbolType: 5, initialRotation: 3, correctRotation: 1 },
-            { symbolType: 3, initialRotation: 2, correctRotation: 0 },
-            { symbolType: 4, initialRotation: 1, correctRotation: 2 }
-          ],
-          [
-            { symbolType: 4, initialRotation: 0, correctRotation: 1 },
-            { symbolType: 5, initialRotation: 2, correctRotation: 3 },
-            { symbolType: 3, initialRotation: 3, correctRotation: 2 }
-          ]
-        ],
-        loreText: "Legend speaks of the Staff of Keila—a conduit between mortals and the divine. When its fragments align, the staff channels the ancient power that once raised mountains and parted seas.",
-        runeSymbol: "⚡"
-      },
-      {
-        id: 3,
-        gridSize: 4,
-        tiles: [
-          [
-            { symbolType: 0, initialRotation: 1, correctRotation: 0 },
-            { symbolType: 1, initialRotation: 2, correctRotation: 1 },
-            { symbolType: 2, initialRotation: 3, correctRotation: 0 },
-            { symbolType: 3, initialRotation: 0, correctRotation: 2 }
-          ],
-          [
-            { symbolType: 2, initialRotation: 2, correctRotation: 3 },
-            { symbolType: 0, initialRotation: 1, correctRotation: 2 },
-            { symbolType: 3, initialRotation: 0, correctRotation: 1 },
-            { symbolType: 1, initialRotation: 3, correctRotation: 0 }
-          ],
-          [
-            { symbolType: 1, initialRotation: 2, correctRotation: 3 },
-            { symbolType: 3, initialRotation: 1, correctRotation: 0 },
-            { symbolType: 0, initialRotation: 0, correctRotation: 2 },
-            { symbolType: 2, initialRotation: 3, correctRotation: 1 }
-          ],
-          [
-            { symbolType: 3, initialRotation: 2, correctRotation: 1 },
-            { symbolType: 2, initialRotation: 0, correctRotation: 3 },
-            { symbolType: 1, initialRotation: 1, correctRotation: 2 },
-            { symbolType: 0, initialRotation: 3, correctRotation: 0 }
-          ]
-        ],
-        loreText: "The Eye of Vashra once guided kings through their darkest hours. This all-seeing symbol reveals hidden truths and illuminates the path forward when all hope seems lost.",
-        runeSymbol: "👁"
-      },
-      {
-        id: 4,
-        gridSize: 4,
-        tiles: [
-          [
-            { symbolType: 4, initialRotation: 3, correctRotation: 0 },
-            { symbolType: 5, initialRotation: 1, correctRotation: 2 },
-            { symbolType: 6, initialRotation: 2, correctRotation: 1 },
-            { symbolType: 7, initialRotation: 0, correctRotation: 3 }
-          ],
-          [
-            { symbolType: 6, initialRotation: 1, correctRotation: 0 },
-            { symbolType: 4, initialRotation: 3, correctRotation: 1 },
-            { symbolType: 7, initialRotation: 2, correctRotation: 3 },
-            { symbolType: 5, initialRotation: 0, correctRotation: 2 }
-          ],
-          [
-            { symbolType: 7, initialRotation: 2, correctRotation: 1 },
-            { symbolType: 6, initialRotation: 0, correctRotation: 3 },
-            { symbolType: 5, initialRotation: 3, correctRotation: 0 },
-            { symbolType: 4, initialRotation: 1, correctRotation: 2 }
-          ],
-          [
-            { symbolType: 5, initialRotation: 3, correctRotation: 1 },
-            { symbolType: 7, initialRotation: 1, correctRotation: 0 },
-            { symbolType: 4, initialRotation: 0, correctRotation: 2 },
-            { symbolType: 6, initialRotation: 2, correctRotation: 3 }
-          ]
-        ],
-        loreText: "In the deepest vaults of the forgotten temple lies the Seal of Eternity. When properly aligned, this glyph grants its keeper mastery over time itself, allowing glimpses into both past and future.",
-        runeSymbol: "∞"
-      },
-      {
-        id: 5,
-        gridSize: 5,
-        tiles: [
-          [
-            { symbolType: 0, initialRotation: 2, correctRotation: 0 },
-            { symbolType: 1, initialRotation: 1, correctRotation: 3 },
-            { symbolType: 2, initialRotation: 3, correctRotation: 1 },
-            { symbolType: 3, initialRotation: 0, correctRotation: 2 },
-            { symbolType: 4, initialRotation: 2, correctRotation: 0 }
-          ],
-          [
-            { symbolType: 3, initialRotation: 1, correctRotation: 2 },
-            { symbolType: 0, initialRotation: 3, correctRotation: 1 },
-            { symbolType: 4, initialRotation: 0, correctRotation: 3 },
-            { symbolType: 1, initialRotation: 2, correctRotation: 0 },
-            { symbolType: 2, initialRotation: 1, correctRotation: 2 }
-          ],
-          [
-            { symbolType: 2, initialRotation: 3, correctRotation: 0 },
-            { symbolType: 4, initialRotation: 1, correctRotation: 2 },
-            { symbolType: 0, initialRotation: 0, correctRotation: 1 },
-            { symbolType: 3, initialRotation: 2, correctRotation: 3 },
-            { symbolType: 1, initialRotation: 3, correctRotation: 0 }
-          ],
-          [
-            { symbolType: 1, initialRotation: 0, correctRotation: 2 },
-            { symbolType: 2, initialRotation: 2, correctRotation: 0 },
-            { symbolType: 3, initialRotation: 1, correctRotation: 3 },
-            { symbolType: 4, initialRotation: 3, correctRotation: 1 },
-            { symbolType: 0, initialRotation: 1, correctRotation: 2 }
-          ],
-          [
-            { symbolType: 4, initialRotation: 2, correctRotation: 1 },
-            { symbolType: 3, initialRotation: 0, correctRotation: 0 },
-            { symbolType: 1, initialRotation: 1, correctRotation: 2 },
-            { symbolType: 0, initialRotation: 3, correctRotation: 1 },
-            { symbolType: 2, initialRotation: 2, correctRotation: 3 }
-          ]
-        ],
-        loreText: "The Crown of Ancients represents the ultimate achievement of the lost civilization. Only those who possess true wisdom and patience can unlock its secrets, earning the right to wield the power of the ancient masters.",
-        runeSymbol: "♦"
-      }
-    ];
-
-    // —— Symbol Set (for tile faces) —— 
-    const symbols = ['◐', '◑', '◒', '◓', '⟡', '⟢', '⬢', '⬡'];
-
-    // —— Tile Class —— 
-    class Tile {
-      constructor(symbolType, initialRot, correctRot, tileSize) {
-        this.symbolType = symbolType;
-        this.currentRotation = initialRot;
-        this.correctRotation = correctRot;
-        this.tileSize = tileSize;
-
-        this.element = document.createElement("div");
-        this.element.classList.add("tile");
-        this.updateAppearance();
-
-        this.element.addEventListener("click", () => this.rotate());
-      }
-
-      rotate() {
-        this.element.classList.add("rotating");
-        this.currentRotation = (this.currentRotation + 1) % 4;
-
-        // Wait through the CSS rotation animation, then finalize
-        setTimeout(() => {
-          this.updateAppearance();
-          this.element.classList.remove("rotating");
-          // Notify parent Grid that a tile rotated
-          this.element.dispatchEvent(new CustomEvent("tileRotated", { bubbles: true }));
-        }, 150);
-      }
-
-      updateAppearance() {
-        // Pick the base symbol from the symbols array
-        const baseSymbol = symbols[this.symbolType] || symbols[this.symbolType % symbols.length];
-        this.element.textContent = baseSymbol;
-
-        // Rotate the DIV according to currentRotation
-        const angle = this.currentRotation * 90;
-        this.element.style.transform = `rotate(${angle}deg)`;
-
-        // Highlight if it's in the correct orientation
-        if (this.isCorrect()) {
-          this.element.classList.add("correct");
-        } else {
-          this.element.classList.remove("correct");
-        }
-      }
-
-      isCorrect() {
-        return this.currentRotation === this.correctRotation;
-      }
-
-      attachTo(parent) {
-        parent.appendChild(this.element);
-      }
-    }
-
-    // —— Grid Class —— 
-    class Grid {
-      constructor(levelConfig, container) {
-        this.levelConfig = levelConfig;
-        this.container = container;
-        this.size = levelConfig.gridSize;
-        this.tiles = [];
-        this.tileSize = 60;
-        this.isCompleted = false;
-
-        this.buildGrid();
-        this.container.addEventListener("tileRotated", () => this.onTileRotated());
-      }
-
-      buildGrid() {
-        // Clear any previous tiles
-        this.container.innerHTML = "";
-        // Define CSS grid dimensions
-        this.container.style.gridTemplateColumns = `repeat(${this.size}, ${this.tileSize}px)`;
-        this.container.style.gridTemplateRows = `repeat(${this.size}, ${this.tileSize}px)`;
-
-        const tileData = this.levelConfig.tiles;
-        for (let row = 0; row < this.size; row++) {
-          this.tiles[row] = [];
-          for (let col = 0; col < this.size; col++) {
-            const { symbolType, initialRotation, correctRotation } = tileData[row][col];
-            const tile = new Tile(symbolType, initialRotation, correctRotation, this.tileSize);
-            tile.attachTo(this.container);
-            this.tiles[row][col] = tile;
-          }
-        }
-      }
-
-      onTileRotated() {
-        if (!this.isCompleted && this.checkSolved()) {
-          this.handleLevelComplete();
-        }
-      }
-
-      checkSolved() {
-        for (let row = 0; row < this.size; row++) {
-          for (let col = 0; col < this.size; col++) {
-            if (!this.tiles[row][col].isCorrect()) {
-              return false;
+        category: "Economy",
+        prompt: "Your advisors propose lowering income tax rates to stimulate growth. What do you do?",
+        choices: [
+          {
+            text: "Reduce taxes by 2%",
+            effect: () => {
+              state.treasury = Math.max(0, state.treasury - 5);
+              state.approval = Math.min(100, state.approval + 5);
+              appendOutcome("Taxes lowered. Short‐term revenue drops, but public morale rises.");
+            }
+          },
+          {
+            text: "Keep taxes unchanged",
+            effect: () => {
+              state.approval = Math.max(0, state.approval - 1);
+              appendOutcome("No change. People expected relief, so approval dips slightly.");
+            }
+          },
+          {
+            text: "Increase taxes by 2%",
+            effect: () => {
+              state.treasury += 6;
+              state.approval = Math.max(0, state.approval - 7);
+              appendOutcome("Taxes increased. Treasury benefits, but public is unhappy.");
             }
           }
-        }
-        return true;
-      }
-
-      handleLevelComplete() {
-        this.isCompleted = true;
-        // Disable further rotations on all tiles
-        for (let row = 0; row < this.size; row++) {
-          for (let col = 0; col < this.size; col++) {
-            this.tiles[row][col].element.style.pointerEvents = "none";
+        ]
+      },
+      {
+        category: "Infrastructure",
+        prompt: "Build a new coastal road to improve trade access. This costs money now but may boost growth later.",
+        choices: [
+          {
+            text: "Authorize construction (−$12 M)",
+            effect: () => {
+              state.treasury = Math.max(0, state.treasury - 12);
+              state.approval = Math.min(100, state.approval + 3);
+              appendOutcome("Road construction begins. Approval rises for improved infrastructure.");
+            }
+          },
+          {
+            text: "Delay project",
+            effect: () => {
+              state.approval = Math.max(0, state.approval - 2);
+              appendOutcome("Project delayed due to budget concerns. Small drop in approval.");
+            }
           }
-        }
-        // Brief delay for visual effect, then notify UI layer
-        setTimeout(() => {
-          this.container.dispatchEvent(
-            new CustomEvent("levelSolved", { detail: this.levelConfig })
-          );
-        }, 500);
-      }
-
-      resetGrid() {
-        this.isCompleted = false;
-        const tileData = this.levelConfig.tiles;
-
-        for (let row = 0; row < this.size; row++) {
-          for (let col = 0; col < this.size; col++) {
-            const initialRot = tileData[row][col].initialRotation;
-            this.tiles[row][col].currentRotation = initialRot;
-            this.tiles[row][col].updateAppearance();
-            this.tiles[row][col].element.style.pointerEvents = "auto";
+        ]
+      },
+      {
+        category: "Social",
+        prompt: "Healthcare is stretched. Your health minister suggests increasing funding. Choose an option:",
+        choices: [
+          {
+            text: "Allocate +$8 M to healthcare",
+            effect: () => {
+              state.treasury = Math.max(0, state.treasury - 8);
+              state.approval = Math.min(100, state.approval + 7);
+              state.population += 1;  // slight population growth due to better health
+              appendOutcome("Healthcare funded generously. Approval soars, population health improves.");
+            }
+          },
+          {
+            text: "Maintain current funding",
+            effect: () => {
+              appendOutcome("No change. Public remains cautious but sees no harm.");
+            }
+          },
+          {
+            text: "Cut healthcare budget by $5 M",
+            effect: () => {
+              state.treasury += 5;
+              state.approval = Math.max(0, state.approval - 8);
+              state.population = Math.max(0, state.population - 1);
+              appendOutcome("Healthcare budget cut. Approval plunges, some public health declines.");
+            }
           }
+        ]
+      },
+      {
+        category: "Diplomacy",
+        prompt: "Neighbor Alpha requests a trade deal: they offer resources if we lower export tariffs. What’s your decision?",
+        choices: [
+          {
+            text: "Agree to trade deal",
+            effect: () => {
+              state.relations.Alpha = Math.min(100, state.relations.Alpha + 10);
+              state.treasury += 4;
+              appendOutcome("Trade deal approved. Alpha relations improve, small treasury gain.");
+            }
+          },
+          {
+            text: "Decline politely",
+            effect: () => {
+              state.relations.Alpha = Math.max(0, state.relations.Alpha - 5);
+              appendOutcome("Trade deal refused. Relations with Alpha suffer slightly.");
+            }
+          }
+        ]
+      },
+      {
+        category: "Diplomacy",
+        prompt: "Neighbor Beta is holding joint military exercises. Some fear they’re a provocation. Do you respond?",
+        choices: [
+          {
+            text: "Send a diplomatic envoy",
+            effect: () => {
+              state.relations.Beta = Math.min(100, state.relations.Beta + 8);
+              state.treasury = Math.max(0, state.treasury - 2);
+              appendOutcome("Envoy sent. Beta pleased, relations improve; a small diplomatic expense.");
+            }
+          },
+          {
+            text: "Issue a formal protest",
+            effect: () => {
+              state.relations.Beta = Math.max(0, state.relations.Beta - 7);
+              state.approval = Math.max(0, state.approval - 3);
+              appendOutcome("Formal protest issued. Public approval dips as tensions rise.");
+            }
+          }
+        ]
+      },
+      {
+        category: "Environment",
+        prompt: "A proposal emerges to subsidize solar panel installations for households. Choose an action:",
+        choices: [
+          {
+            text: "Subsidize 50% of cost (−$7 M)",
+            effect: () => {
+              state.treasury = Math.max(0, state.treasury - 7);
+              state.approval = Math.min(100, state.approval + 6);
+              appendOutcome("Solar subsidy enacted. Approval rises among green‐minded citizens.");
+            }
+          },
+          {
+            text: "Reject subsidy idea",
+            effect: () => {
+              state.approval = Math.max(0, state.approval - 4);
+              appendOutcome("Subsidy rejected. Environmental activists disappointed.");
+            }
+          }
+        ]
+      }
+      // (You can add more decision objects to increase variety.)
+    ];
+
+    // ─────── Random Events Pool ───────
+    // After each decision, one random event may occur.
+    const events = [
+      {
+        description: "A mild hurricane hits the coast. Some infrastructure is damaged.",
+        effect: () => {
+          state.treasury = Math.max(0, state.treasury - 10);
+          state.approval = Math.max(0, state.approval - 8);
+          state.population = Math.max(0, state.population - 2);
+          return "Hurricane damages roads and homes. Expenses rise, approval falls.";
+        }
+      },
+      {
+        description: "A sudden tourism boom brings extra revenue.",
+        effect: () => {
+          state.treasury += 8;
+          state.approval = Math.min(100, state.approval + 4);
+          return "Tourism surge: treasury gains, slight approval boost.";
+        }
+      },
+      {
+        description: "Crop disease reduces agricultural output.",
+        effect: () => {
+          state.treasury = Math.max(0, state.treasury - 6);
+          state.population = Math.max(0, state.population - 1);
+          state.approval = Math.max(0, state.approval - 5);
+          return "Crop disease hits farms. Economy shrinks, some population decline.";
+        }
+      },
+      {
+        description: "Neighbor Alpha holds goodwill festival and shares gifts.",
+        effect: () => {
+          state.relations.Alpha = Math.min(100, state.relations.Alpha + 10);
+          state.approval = Math.min(100, state.approval + 3);
+          return "Alpha’s festival warms relations. All rejoice.";
+        }
+      },
+      {
+        description: "A tech startup in your republic patents a new process. Investors flock.",
+        effect: () => {
+          state.treasury += 5;
+          state.approval = Math.min(100, state.approval + 6);
+          state.population += 1;
+          return "Innovation breakthrough! Economy and approval rise.";
+        }
+      },
+      {
+        description: "Minor protest erupts over unemployment.",
+        effect: () => {
+          state.approval = Math.max(0, state.approval - 7);
+          return "Protest forms in capital. Approval drops.";
         }
       }
+      // (Add more events to keep things unpredictable.)
+    ];
+
+    // ─────── DOM References ───────
+    const statTreasuryEl   = document.getElementById("stat-treasury");
+    const statPopEl        = document.getElementById("stat-pop");
+    const statApprovalEl   = document.getElementById("stat-approval");
+    const statRelAEl       = document.getElementById("stat-rel-A");
+    const statRelBEl       = document.getElementById("stat-rel-B");
+    const weekDisplayEl    = document.getElementById("week-display");
+    const promptEl         = document.getElementById("decision-prompt");
+    const choicesEl        = document.getElementById("choices");
+    const outcomeEl        = document.getElementById("outcome");
+    const nextBtn          = document.getElementById("next-btn");
+
+    // ─────── Utility: Update All Stats on Screen ───────
+    function renderStats() {
+      statTreasuryEl.textContent = state.treasury.toFixed(1);
+      statPopEl.textContent      = state.population.toFixed(1);
+      statApprovalEl.textContent = state.approval.toFixed(0);
+      statRelAEl.textContent     = state.relations.Alpha.toFixed(0);
+      statRelBEl.textContent     = state.relations.Beta.toFixed(0);
+      weekDisplayEl.textContent  = `Week ${state.week}, Year ${state.year}`;
     }
 
-    // —— UI Manager —— 
-    class UIManager {
-      constructor(levelsData, gridContainer) {
-        this.levelsData = levelsData;
-        this.gridContainer = gridContainer;
-        this.currentLevelIndex = 0;
-        this.currentGrid = null;
-
-        // DOM handles
-        this.resetBtn = document.getElementById("reset-btn");
-        this.nextLevelBtn = document.getElementById("next-level-btn");
-        this.levelDisplay = document.getElementById("level-display");
-        this.loreModal = document.getElementById("lore-modal");
-        this.runeImageEl = document.getElementById("rune-image");
-        this.loreTextEl = document.getElementById("lore-text");
-        this.closeLoreBtn = document.getElementById("close-lore-btn");
-        this.completionArea = document.getElementById("completion-area");
-
-        // Event listeners
-        this.resetBtn.addEventListener("click", () => this.resetLevel());
-        this.nextLevelBtn.addEventListener("click", () => this.loadNextLevel());
-        this.closeLoreBtn.addEventListener("click", () => this.closeLore());
-
-        // Load the first level
-        this.loadLevel(this.currentLevelIndex);
-      }
-
-      loadLevel(index) {
-        const levelConfig = this.levelsData[index];
-
-        // If there was a previous grid, remove its listener
-        if (this.currentGrid) {
-          this.gridContainer.removeEventListener("levelSolved", this.onLevelSolvedHandler);
-        }
-
-        // Instantiate a brand-new Grid
-        this.currentGrid = new Grid(levelConfig, this.gridContainer);
-
-        // Listen for when this level is solved
-        this.onLevelSolvedHandler = (e) => this.onLevelSolved(e);
-        this.gridContainer.addEventListener("levelSolved", this.onLevelSolvedHandler);
-
-        // Update UI text & button states
-        this.levelDisplay.textContent = `Level ${levelConfig.id}`;
-        this.nextLevelBtn.disabled = true;
-        this.resetBtn.disabled = false;
-        this.completionArea.innerHTML = "";
-      }
-
-      resetLevel() {
-        if (this.currentGrid) {
-          this.currentGrid.resetGrid();
-          this.nextLevelBtn.disabled = true;
-          this.resetBtn.disabled = false;
-          this.completionArea.innerHTML = "";
-        }
-      }
-
-      onLevelSolved(event) {
-        const levelConfig = event.detail;
-
-        // Show a temporary completion message
-        this.completionArea.innerHTML =
-          '<div class="completion-message">🎉 Ancient Rune Revealed! 🎉</div>';
-
-        // After a short pause, reveal the lore modal
-        setTimeout(() => {
-          this.runeImageEl.textContent = levelConfig.runeSymbol;
-          this.loreTextEl.textContent = levelConfig.loreText;
-          this.loreModal.classList.remove("hidden");
-        }, 1000);
-
-        // Disable the Reset button now that level is done
-        this.resetBtn.disabled = true;
-      }
-
-      closeLore() {
-        // Hide the modal
-        this.loreModal.classList.add("hidden");
-
-        // If more levels remain, enable Next Level
-        if (this.currentLevelIndex < this.levelsData.length - 1) {
-          this.nextLevelBtn.disabled = false;
-        } else {
-          // All levels completed
-          this.completionArea.innerHTML =
-            '<div class="completion-message">🏆 Congratulations! You have unlocked all ancient secrets! 🏆</div>';
-        }
-      }
-
-      loadNextLevel() {
-        if (this.currentLevelIndex < this.levelsData.length - 1) {
-          this.currentLevelIndex++;
-          this.loadLevel(this.currentLevelIndex);
-        }
-      }
+    // ─────── Utility: Clear Outcome & Choices ───────
+    function clearOutcomeAndChoices() {
+      outcomeEl.textContent = "";
+      choicesEl.innerHTML = "";
     }
 
-    // —— Initialize on DOM Ready —— 
+    // ─────── Utility: Append a Line to Outcome Area ───────
+    function appendOutcome(text) {
+      const p = document.createElement("p");
+      p.textContent = text;
+      outcomeEl.appendChild(p);
+    }
+
+    // ─────── Choose a Random Decision That’s Not the Same Category Twice ───────
+    let lastCategory = null;
+    function pickDecision() {
+      // Filter out decisions of the same category as last time, if possible
+      let pool = decisions.filter(d => d.category !== lastCategory);
+      if (!pool.length) pool = decisions.slice(); // fallback if none left
+      const idx = Math.floor(Math.random() * pool.length);
+      lastCategory = pool[idx].category;
+      return pool[idx];
+    }
+
+    // ─────── Render the Choices for a Given Decision ───────
+    function renderDecision(decision) {
+      promptEl.textContent = decision.prompt;
+      choicesEl.innerHTML = "";
+      outcomeEl.textContent = "";
+      nextBtn.disabled = true;
+
+      decision.choices.forEach((choiceObj, i) => {
+        const btn = document.createElement("button");
+        btn.className = "choice-btn";
+        btn.textContent = choiceObj.text;
+        btn.addEventListener("click", () => {
+          // Disable all choice buttons immediately
+          document.querySelectorAll(".choice-btn").forEach(b => b.disabled = true);
+          // Apply the chosen effect
+          choiceObj.effect();
+          // After decision effect, show Proceed button
+          nextBtn.disabled = false;
+          nextBtn.textContent = "Proceed ▶";
+        });
+        choicesEl.appendChild(btn);
+      });
+    }
+
+    // ─────── Apply a Random Event (with ~50% Chance) ───────
+    function applyRandomEvent() {
+      const trigger = Math.random() < 0.5; // 50% probability
+      if (!trigger) return;
+      const ev = events[Math.floor(Math.random() * events.length)];
+      const resultText = ev.effect();
+      appendOutcome("🔔 Event: " + resultText);
+    }
+
+    // ─────── Advance to Next Week ───────
+    function nextWeek() {
+      // 1) Advance week & year if needed
+      state.week++;
+      if (state.week > 52) {
+        state.week = 1;
+        state.year++;
+      }
+
+      // 2) Apply random event
+      applyRandomEvent();
+
+      // 3) Tweak some natural growth/decay
+      //    - Slight population growth if approval is high
+      if (state.approval > 60 && state.population < 200) {
+        state.population = +(state.population + 0.5).toFixed(1);
+      }
+      //    - Small treasury growth from productive sectors if approval > 50
+      if (state.approval > 50) {
+        state.treasury = +(state.treasury + 1).toFixed(1);
+      }
+
+      // 4) Render updated stats
+      renderStats();
+
+      // 5) Pick & render a new decision
+      const nextDecision = pickDecision();
+      renderDecision(nextDecision);
+    }
+
+    // ─────── Initialization ───────
     document.addEventListener("DOMContentLoaded", () => {
-      const gridContainer = document.getElementById("grid-container");
-      new UIManager(levels, gridContainer);
+      renderStats();
+      const firstDecision = pickDecision();
+      renderDecision(firstDecision);
+
+      // Next-button always calls nextWeek()
+      nextBtn.addEventListener("click", () => {
+        clearOutcomeAndChoices();
+        nextWeek();
+      });
     });
   </script>
 </body>
