@@ -42,124 +42,121 @@
   <canvas id="scrawl" width="500" height="500"></canvas>
 
   <script>
-    // core variables
-    let canvas, ctx, interval;
-    const width = 500, height = 500;
-    const size = 125, step = width / size;
-    let Old, New, Neigh, Ratio1;
-    let speed = 20;
-    let running = true;
-
-    // team colors
-    const colorA = '#0074D9';  // blue
-    const colorB = '#FF4136';  // red
+    var canvas, ctx, interval;
+    var width, height, size, step;
+    var Old, Ratio1, Neigh;
+    var color1, color2;
+    var delay, running = true;
 
     function setup() {
+      // canvas & dims
+      width = 500; height = 500;
+      size = 125; step = width / size;
       canvas = document.getElementById("scrawl");
-      ctx = canvas.getContext("2d");
+      ctx    = canvas.getContext("2d");
 
-      // build arrays
-      Old    = Array.from({length: size}, () => Array(size).fill(0));
-      New    = Array.from({length: size}, () => Array(size).fill(0));
-      Neigh  = Array.from({length: size}, () => Array(size).fill(8));
-      Ratio1 = Array.from({length: size}, () => Array(size).fill(0));
+      // random colors
+      color1 = "#" + ("000000" + Math.floor(Math.random() * 0xFFFFFF).toString(16)).slice(-6);
+      color2 = "#" + ("000000" + Math.floor(Math.random() * 0xFFFFFF).toString(16)).slice(-6);
 
-      // neighbor counts for edges
+      // allocate arrays
+      Old    = []; Ratio1 = []; Neigh = [];
       for (let i = 0; i < size; i++) {
+        Old[i] = []; Ratio1[i] = []; Neigh[i] = [];
         for (let j = 0; j < size; j++) {
-          let count = 8;
-          if (i === 0 || i === size - 1) count -= 3;
-          if (j === 0 || j === size - 1) count -= 3;
-          Neigh[i][j] = count;
+          Ratio1[i][j] = 0;
+          // compute neighbor count
+          let n = 8;
+          if (i === 0 || i === size - 1) n -= 3;
+          if (j === 0 || j === size - 1) n -= 3;
+          Neigh[i][j] = n;
         }
       }
 
-      // randomize initial field
-      randomizeField();
+      // initial split: top half = 1, bottom half = 0
+      reset();
 
-      // setup controls
-      document.getElementById('toggle').onclick = toggleRunning;
-      document.getElementById('speed').oninput = e => {
-        speed = parseInt(e.target.value);
+      // controls
+      const slider = document.getElementById("speed");
+      delay = 101 - parseInt(slider.value, 10);
+      document.getElementById("toggle").onclick = toggleRunning;
+      slider.oninput = function() {
+        delay = 101 - parseInt(this.value, 10);
         restartInterval();
       };
-      document.getElementById('resetBtn').onclick = reset;
+      document.getElementById("resetBtn").onclick = function(){
+        reset();
+        draw();
+        updateStats();
+      };
 
-      // start simulation
+      // start
       restartInterval();
     }
 
     function restartInterval() {
       clearInterval(interval);
-      if (running) interval = setInterval(run, speed);
+      if (running) interval = setInterval(run, delay);
     }
 
     function toggleRunning() {
       running = !running;
-      document.getElementById('toggle').textContent = running ? 'Pause' : 'Resume';
+      document.getElementById("toggle").textContent = running ? "Pause" : "Resume";
       restartInterval();
     }
 
     function reset() {
-      randomizeField();
-    }
-
-    function randomizeField() {
       for (let i = 0; i < size; i++) {
         for (let j = 0; j < size; j++) {
-          Old[i][j] = (Math.random() < 0.5 ? 1 : 2);
+          Old[i][j] = (i < size/2 ? 1 : 0);
         }
       }
     }
 
-    // compute neighbor ratios for Team A
+    function run() {
+      computeRatios();
+      draw();
+      calculate();
+      updateStats();
+    }
+
     function computeRatios() {
       for (let i = 0; i < size; i++) {
         for (let j = 0; j < size; j++) {
-          let countA = 0;
+          let sum = 0;
           for (let di = -1; di <= 1; di++) {
             for (let dj = -1; dj <= 1; dj++) {
               if (di === 0 && dj === 0) continue;
               let ni = i + di, nj = j + dj;
               if (ni >= 0 && ni < size && nj >= 0 && nj < size) {
-                if (Old[ni][nj] === 1) countA++;
+                sum += Old[ni][nj];
               }
             }
           }
-          Ratio1[i][j] = countA / Neigh[i][j];
+          Ratio1[i][j] = sum / Neigh[i][j];
         }
       }
     }
 
-    // draw current state
     function draw() {
       for (let i = 0; i < size; i++) {
         for (let j = 0; j < size; j++) {
-          ctx.fillStyle = (Old[i][j] === 1 ? colorA : colorB);
+          ctx.fillStyle = color1;
+          if (Old[i][j] === 1) ctx.fillStyle = color2;
           ctx.fillRect(i * step, j * step, step, step);
         }
       }
     }
 
-    // update cells: probabilistic fight + small mutation
-    function update() {
+    function calculate() {
       for (let i = 0; i < size; i++) {
         for (let j = 0; j < size; j++) {
-          const pA = Ratio1[i][j];
-          // 1% mutation chance flips the cell
-          if (Math.random() < 0.01) {
-            New[i][j] = (Old[i][j] === 1 ? 2 : 1);
-          } else {
-            // fight probabilistically
-            New[i][j] = (Math.random() < pA ? 1 : 2);
-          }
+          let help = Math.random();
+          Old[i][j] = (Ratio1[i][j] > help ? 1 : 0);
         }
       }
-      // swap buffers
-      [Old, New] = [New, Old];
     }
 
-    // calculate and display stats
     function updateStats() {
       let countA = 0;
       for (let i = 0; i < size; i++) {
@@ -167,18 +164,10 @@
           if (Old[i][j] === 1) countA++;
         }
       }
-      const total = size * size;
-      const ratioA = countA / total;
-      const ratioB = 1 - ratioA;
-      document.getElementById('stats').textContent =
-        `Team A: ${(ratioA*100).toFixed(1)}% | Team B: ${(ratioB*100).toFixed(1)}%`;
-    }
-
-    function run() {
-      computeRatios();
-      draw();
-      update();
-      updateStats();
+      let pctA = (countA / (size * size)) * 100;
+      let pctB = 100 - pctA;
+      document.getElementById("stats").textContent =
+        `Team A: ${pctA.toFixed(1)}% | Team B: ${pctB.toFixed(1)}%`;
     }
   </script>
 
