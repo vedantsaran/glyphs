@@ -24,6 +24,7 @@
     }
     button, input[type=range] {
       cursor: pointer;
+      margin: 0 5px;
     }
   </style>
 </head>
@@ -35,7 +36,7 @@
     <label>
       Speed: <input id="speed" type="range" min="1" max="100" value="20">
     </label>
-    <button onclick="reset()">Reset</button>
+    <button id="resetBtn">Reset</button>
   </div>
   <div id="stats">Team A: 50.0% | Team B: 50.0%</div>
   <canvas id="scrawl" width="500" height="500"></canvas>
@@ -43,7 +44,7 @@
   <script>
     // core variables
     let canvas, ctx, interval;
-    let width = 500, height = 500;
+    const width = 500, height = 500;
     const size = 125, step = width / size;
     let Old, New, Neigh, Ratio1;
     let speed = 20;
@@ -58,9 +59,9 @@
       ctx = canvas.getContext("2d");
 
       // build arrays
-      Old = Array.from({length: size}, () => Array(size).fill(0));
-      New = Array.from({length: size}, () => Array(size).fill(0));
-      Neigh = Array.from({length: size}, () => Array(size).fill(8));
+      Old    = Array.from({length: size}, () => Array(size).fill(0));
+      New    = Array.from({length: size}, () => Array(size).fill(0));
+      Neigh  = Array.from({length: size}, () => Array(size).fill(8));
       Ratio1 = Array.from({length: size}, () => Array(size).fill(0));
 
       // neighbor counts for edges
@@ -73,19 +74,16 @@
         }
       }
 
-      // initial split: top half Team A (1), bottom half Team B (2)
-      for (let i = 0; i < size; i++) {
-        for (let j = 0; j < size; j++) {
-          Old[i][j] = (i < size/2 ? 1 : 2);
-        }
-      }
+      // randomize initial field
+      randomizeField();
 
-      // controls
+      // setup controls
       document.getElementById('toggle').onclick = toggleRunning;
       document.getElementById('speed').oninput = e => {
         speed = parseInt(e.target.value);
         restartInterval();
       };
+      document.getElementById('resetBtn').onclick = reset;
 
       // start simulation
       restartInterval();
@@ -103,10 +101,13 @@
     }
 
     function reset() {
-      // re-initialize teams
+      randomizeField();
+    }
+
+    function randomizeField() {
       for (let i = 0; i < size; i++) {
         for (let j = 0; j < size; j++) {
-          Old[i][j] = (i < size/2 ? 1 : 2);
+          Old[i][j] = (Math.random() < 0.5 ? 1 : 2);
         }
       }
     }
@@ -140,13 +141,18 @@
       }
     }
 
-    // update cells: each cell adopts the majority neighbor team
+    // update cells: probabilistic fight + small mutation
     function update() {
       for (let i = 0; i < size; i++) {
         for (let j = 0; j < size; j++) {
-          let r1 = Ratio1[i][j];
-          let r2 = 1 - r1;
-          New[i][j] = (r1 > r2 ? 1 : 2);
+          const pA = Ratio1[i][j];
+          // 1% mutation chance flips the cell
+          if (Math.random() < 0.01) {
+            New[i][j] = (Old[i][j] === 1 ? 2 : 1);
+          } else {
+            // fight probabilistically
+            New[i][j] = (Math.random() < pA ? 1 : 2);
+          }
         }
       }
       // swap buffers
