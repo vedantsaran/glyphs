@@ -285,6 +285,14 @@
         box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         position: relative;
         overflow: hidden;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    .scientist-portrait.has-image {
+        font-size: 0;
+        border: 4px solid white;
     }
 
     .scientist-portrait::before {
@@ -296,6 +304,52 @@
         height: 100%;
         background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
         animation: shine 3s infinite;
+    }
+
+    .historical-image {
+        width: 100%;
+        max-width: 400px;
+        height: auto;
+        border-radius: 15px;
+        margin: 1rem auto;
+        display: block;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        transition: transform 0.3s ease;
+    }
+
+    .historical-image:hover {
+        transform: scale(1.05);
+    }
+
+    .image-caption {
+        font-size: 0.9rem;
+        color: #666;
+        text-align: center;
+        margin-top: 0.5rem;
+        font-style: italic;
+    }
+
+    .lab-equipment {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin: 2rem 0;
+        flex-wrap: wrap;
+    }
+
+    .equipment-item {
+        text-align: center;
+        max-width: 200px;
+    }
+
+    .equipment-item img {
+        width: 150px;
+        height: 150px;
+        object-fit: contain;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.1);
+        padding: 15px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
 
     @keyframes shine {
@@ -662,6 +716,8 @@
     <div class="slide">
         <div class="slide-content">
             <h2>Ancient Beginnings (3000 BCE - 300 CE)</h2>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Egyptian_wall_painting_depicting_metallurgy.jpg/640px-Egyptian_wall_painting_depicting_metallurgy.jpg" alt="Ancient Egyptian metallurgy" class="historical-image">
+            <div class="image-caption">Ancient Egyptian wall painting showing metallurgical processes</div>
             <div class="timeline-item">
                 <div class="timeline-year">3000-1000 BCE</div>
                 <h3>Metallurgy and Early Chemistry</h3>
@@ -682,21 +738,23 @@
             <p>Alchemy bridged mysticism and early chemistry, seeking to transform base metals into gold and discover the elixir of life.</p>
             <div class="scientist-grid">
                 <div class="scientist-card">
-                    <div class="scientist-portrait">🧪</div>
+                    <div class="scientist-portrait has-image" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Jabir_ibn_Hayyan.jpg/256px-Jabir_ibn_Hayyan.jpg');"></div>
                     <h3>Jabir ibn Hayyan (721-815)</h3>
                     <p>Father of Arab chemistry. Developed laboratory equipment and techniques, discovered hydrochloric acid (HCl), and laid groundwork for experimental chemistry.</p>
                 </div>
                 <div class="scientist-card">
-                    <div class="scientist-portrait">⚗️</div>
+                    <div class="scientist-portrait has-image" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Al-Razi_portrait.jpg/256px-Al-Razi_portrait.jpg');"></div>
                     <h3>Al-Razi (854-925)</h3>
                     <p>Distinguished between chemistry and alchemy, classified substances into animal, vegetable, and mineral categories. First to use alcohol for medical purposes.</p>
                 </div>
                 <div class="scientist-card">
-                    <div class="scientist-portrait">💊</div>
+                    <div class="scientist-portrait has-image" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Paracelsus.jpg/256px-Paracelsus.jpg');"></div>
                     <h3>Paracelsus (1493-1541)</h3>
                     <p>Introduced chemical remedies to medicine, promoted the idea that diseases had chemical causes and could be treated with chemical solutions.</p>
                 </div>
             </div>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Alchemical_laboratory_-_Project_Gutenberg_eText_14218.jpg/640px-Alchemical_laboratory_-_Project_Gutenberg_eText_14218.jpg" alt="Medieval alchemical laboratory" class="historical-image">
+            <div class="image-caption">Medieval alchemical laboratory with distillation apparatus</div>
             <div class="beaker-animation">
                 <div class="beaker">
                     <div class="bubble bubble1"></div>
@@ -711,6 +769,16 @@
     <div class="slide">
         <div class="slide-content">
             <h2>Birth of Modern Chemistry (1600-1800)</h2>
+            <div class="lab-equipment">
+                <div class="equipment-item">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Robert_Boyle_0001.jpg/256px-Robert_Boyle_0001.jpg" alt="Robert Boyle">
+                    <div class="image-caption">Robert Boyle (1627-1691)</div>
+                </div>
+                <div class="equipment-item">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/David_-_Portrait_of_Monsieur_Lavoisier_and_His_Wife.jpg/320px-David_-_Portrait_of_Monsieur_Lavoisier_and_His_Wife.jpg" alt="Antoine Lavoisier">
+                    <div class="image-caption">Antoine Lavoisier & Marie-Anne</div>
+                </div>
+            </div>
             <div class="timeline-item">
                 <div class="timeline-year">1661</div>
                 <h3>Robert Boyle - "The Sceptical Chymist"</h3>
@@ -735,22 +803,24 @@
             <h2>Atomic Theory Revolution (1800-1860)</h2>
             <div class="scientist-grid">
                 <div class="scientist-card">
-                    <div class="scientist-portrait">⚛️</div>
+                    <div class="scientist-portrait has-image" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/John_Dalton_by_Charles_Turner.jpg/256px-John_Dalton_by_Charles_Turner.jpg');"></div>
                     <h3>John Dalton (1803)</h3>
                     <p><strong>Atomic Theory:</strong> All matter consists of indivisible atoms. Atoms of same element are identical. Chemical reactions involve rearrangement of atoms.</p>
                     <div class="chemical-formula">H₂ + Cl₂ → 2HCl</div>
                 </div>
                 <div class="scientist-card">
-                    <div class="scientist-portrait">🔬</div>
+                    <div class="scientist-portrait has-image" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Amedeo_Avogadro.png/256px-Amedeo_Avogadro.png');"></div>
                     <h3>Amedeo Avogadro (1811)</h3>
                     <p><strong>Avogadro's Law:</strong> Equal volumes of gases at same conditions contain equal numbers of molecules. Led to Avogadro's number: 6.022 × 10²³.</p>
                 </div>
                 <div class="scientist-card">
-                    <div class="scientist-portrait">🌡️</div>
+                    <div class="scientist-portrait has-image" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Lussac.jpg/256px-Lussac.jpg');"></div>
                     <h3>Gay-Lussac (1808)</h3>
                     <p><strong>Law of Combining Volumes:</strong> Gases combine in simple ratios by volume, supporting atomic theory and molecular formulas.</p>
                 </div>
             </div>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Dalton_atomic_theory_1803.png/640px-Dalton_atomic_theory_1803.png" alt="Dalton's atomic symbols" class="historical-image">
+            <div class="image-caption">Dalton's original atomic symbols from his 1803 theory</div>
             <div class="reaction-animation">
                 <div class="reactant">H₂</div>
                 <div class="arrow">→</div>
@@ -765,6 +835,16 @@
     <div class="slide">
         <div class="slide-content">
             <h2>The Periodic System (1860-1900)</h2>
+            <div class="lab-equipment">
+                <div class="equipment-item">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/DIMendeleev.jpg/256px-DIMendeleev.jpg" alt="Dmitri Mendeleev">
+                    <div class="image-caption">Dmitri Mendeleev (1834-1907)</div>
+                </div>
+                <div class="equipment-item">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Mendeleev%27s_1869_periodic_table.png/400px-Mendeleev%27s_1869_periodic_table.png" alt="Mendeleev's periodic table">
+                    <div class="image-caption">Mendeleev's 1869 Periodic Table</div>
+                </div>
+            </div>
             <div class="timeline-item">
                 <div class="timeline-year">1869</div>
                 <h3>Dmitri Mendeleev - Periodic Table</h3>
@@ -798,21 +878,23 @@
             <h2>Quantum Chemistry Era (1900-1950)</h2>
             <div class="scientist-grid">
                 <div class="scientist-card">
-                    <div class="scientist-portrait">🎯</div>
+                    <div class="scientist-portrait has-image" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Ernest_Rutherford_LOC.jpg/256px-Ernest_Rutherford_LOC.jpg');"></div>
                     <h3>Ernest Rutherford (1911)</h3>
                     <p>Gold foil experiment revealed atomic nucleus. Established nuclear model: dense positive nucleus surrounded by electrons.</p>
                 </div>
                 <div class="scientist-card">
-                    <div class="scientist-portrait">🌟</div>
+                    <div class="scientist-portrait has-image" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Niels_Bohr.jpg/256px-Niels_Bohr.jpg');"></div>
                     <h3>Niels Bohr (1913)</h3>
                     <p>Bohr model explained hydrogen spectrum using quantized electron orbits. Energy levels: E = -13.6/n² eV.</p>
                 </div>
                 <div class="scientist-card">
-                    <div class="scientist-portrait">〰️</div>
+                    <div class="scientist-portrait has-image" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Erwin_Schr%C3%B6dinger_%281933%29.jpg/256px-Erwin_Schr%C3%B6dinger_%281933%29.jpg');"></div>
                     <h3>Schrödinger (1926)</h3>
                     <p>Wave equation described electron behavior probabilistically. Led to modern orbital theory and quantum mechanics in chemistry.</p>
                 </div>
             </div>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Rutherford_atom.svg/400px-Rutherford_atom.svg.png" alt="Rutherford atomic model" class="historical-image">
+            <div class="image-caption">Rutherford's nuclear model of the atom</div>
             <div class="atom-model">
                 <div class="nucleus"></div>
                 <div class="orbit orbit1">
