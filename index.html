@@ -1,175 +1,112 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PIXELS FIGHTING</title>
+  <title>The History of Chemistry</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f0f0f0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      margin: 0;
+      padding: 0;
+      color: #2d3748;
+      overflow-x: hidden;
+    }
+    .slide {
+      padding: 60px 40px;
+      min-height: 100vh;
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      animation: fadeSlide 0.8s ease-in-out;
+    }
+    h2 {
+      font-size: 2.5rem;
+      color: #4a5568;
+    }
+    p {
+      max-width: 800px;
+      font-size: 1.2rem;
+      line-height: 1.8;
       text-align: center;
-      margin: 0; padding: 20px;
     }
-    #controls {
-      margin: 10px 0;
+    img {
+      max-width: 400px;
+      border-radius: 12px;
+      margin-top: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     }
-    #stats {
-      margin: 10px 0;
-      font-size: 1.1em;
-    }
-    canvas {
-      border: 1px solid #333;
-      background: #fff;
-    }
-    button, input[type=range] {
-      cursor: pointer;
-      margin: 0 5px;
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
-<body onload="setup()">
-
-  <h1>PIXELS FIGHTING</h1>
-  <div id="controls">
-    <button id="toggle">Pause</button>
-    <label>
-      Speed: <input id="speed" type="range" min="1" max="100" value="20">
-    </label>
-    <button id="resetBtn">Reset</button>
+<body>
+  <div class="slide">
+    <h2>Slide 1: The History of Chemistry</h2>
+    <p>A journey from ancient ideas to modern innovations.</p>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/4/4c/Periodic_table_large.png" alt="Periodic Table">
   </div>
-  <div id="stats">Team A: 50.0% | Team B: 50.0%</div>
-  <canvas id="scrawl" width="500" height="500"></canvas>
-
-  <script>
-    var canvas, ctx, interval;
-    var width, height, size, step;
-    var Old, Ratio1, Neigh;
-    var color1, color2;
-    var delay, running = true;
-
-    function setup() {
-      // canvas & dims
-      width = 500; height = 500;
-      size = 125; step = width / size;
-      canvas = document.getElementById("scrawl");
-      ctx    = canvas.getContext("2d");
-
-      // random colors
-      color1 = "#" + ("000000" + Math.floor(Math.random() * 0xFFFFFF).toString(16)).slice(-6);
-      color2 = "#" + ("000000" + Math.floor(Math.random() * 0xFFFFFF).toString(16)).slice(-6);
-
-      // allocate arrays
-      Old    = []; Ratio1 = []; Neigh = [];
-      for (let i = 0; i < size; i++) {
-        Old[i] = []; Ratio1[i] = []; Neigh[i] = [];
-        for (let j = 0; j < size; j++) {
-          Ratio1[i][j] = 0;
-          // compute neighbor count
-          let n = 8;
-          if (i === 0 || i === size - 1) n -= 3;
-          if (j === 0 || j === size - 1) n -= 3;
-          Neigh[i][j] = n;
-        }
-      }
-
-      // initial split: top half = 1, bottom half = 0
-      reset();
-
-      // controls
-      const slider = document.getElementById("speed");
-      delay = 101 - parseInt(slider.value, 10);
-      document.getElementById("toggle").onclick = toggleRunning;
-      slider.oninput = function() {
-        delay = 101 - parseInt(this.value, 10);
-        restartInterval();
-      };
-      document.getElementById("resetBtn").onclick = function(){
-        reset();
-        draw();
-        updateStats();
-      };
-
-      // start
-      restartInterval();
-    }
-
-    function restartInterval() {
-      clearInterval(interval);
-      if (running) interval = setInterval(run, delay);
-    }
-
-    function toggleRunning() {
-      running = !running;
-      document.getElementById("toggle").textContent = running ? "Pause" : "Resume";
-      restartInterval();
-    }
-
-    function reset() {
-      for (let i = 0; i < size; i++) {
-        for (let j = 0; j < size; j++) {
-          Old[i][j] = (i < size/2 ? 1 : 0);
-        }
-      }
-    }
-
-    function run() {
-      computeRatios();
-      draw();
-      calculate();
-      updateStats();
-    }
-
-    function computeRatios() {
-      for (let i = 0; i < size; i++) {
-        for (let j = 0; j < size; j++) {
-          let sum = 0;
-          for (let di = -1; di <= 1; di++) {
-            for (let dj = -1; dj <= 1; dj++) {
-              if (di === 0 && dj === 0) continue;
-              let ni = i + di, nj = j + dj;
-              if (ni >= 0 && ni < size && nj >= 0 && nj < size) {
-                sum += Old[ni][nj];
-              }
-            }
-          }
-          Ratio1[i][j] = sum / Neigh[i][j];
-        }
-      }
-    }
-
-    function draw() {
-      for (let i = 0; i < size; i++) {
-        for (let j = 0; j < size; j++) {
-          ctx.fillStyle = color1;
-          if (Old[i][j] === 1) ctx.fillStyle = color2;
-          ctx.fillRect(i * step, j * step, step, step);
-        }
-      }
-    }
-
-    function calculate() {
-      for (let i = 0; i < size; i++) {
-        for (let j = 0; j < size; j++) {
-          let help = Math.random();
-          Old[i][j] = (Ratio1[i][j] > help ? 1 : 0);
-        }
-      }
-    }
-
-    function updateStats() {
-      let countA = 0;
-      for (let i = 0; i < size; i++) {
-        for (let j = 0; j < size; j++) {
-          if (Old[i][j] === 1) countA++;
-        }
-      }
-      let pctA = (countA / (size * size)) * 100;
-      let pctB = 100 - pctA;
-      document.getElementById("stats").textContent =
-        `Team A: ${pctA.toFixed(1)}% | Team B: ${pctB.toFixed(1)}%`;
-    }
-  </script>
-
+  <div class="slide">
+    <h2>Slide 2: Ancient Beginnings</h2>
+    <p>Early metalworking and natural philosophy laid the groundwork.</p>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/e/ea/Alchemical_symbols.svg" alt="Alchemical Symbols">
+  </div>
+  <div class="slide">
+    <h2>Slide 3: The Alchemical Period</h2>
+    <p>Alchemy bridged spiritual ideas and real chemical discoveries.</p>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/8/84/Jabir_ibn_Hayyan.jpg" alt="Jabir ibn Hayyan">
+  </div>
+  <div class="slide">
+    <h2>Slide 4: Birth of Modern Chemistry</h2>
+    <p>Boyle emphasized experiments and defined chemical elements.</p>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/66/Robert_Boyle_0001.jpg" alt="Robert Boyle">
+  </div>
+  <div class="slide">
+    <h2>Slide 5: Atomic Theory</h2>
+    <p>Dalton’s atomic model proposed atoms as indivisible particles.</p>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/58/Atom_diagram.svg" alt="Atomic Theory">
+  </div>
+  <div class="slide">
+    <h2>Slide 6: Periodic Table</h2>
+    <p>Mendeleev organized elements by properties and predicted new ones.</p>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/3/30/Dmitri_Mendeleev_chemical_elements_table.png" alt="Mendeleev Table">
+  </div>
+  <div class="slide">
+    <h2>Slide 7: Quantum Chemistry</h2>
+    <p>Bohr, Schrödinger and Heisenberg defined atomic structure with math.</p>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Bohr-atom-PAR.svg" alt="Bohr Atom">
+  </div>
+  <div class="slide">
+    <h2>Slide 8: Bonding Theories</h2>
+    <p>Lewis, Pauling, and Mulliken described how atoms bond together.</p>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/7/75/Covalent_bond_H2.svg" alt="Covalent Bond">
+  </div>
+  <div class="slide">
+    <h2>Slide 9: Thermodynamics</h2>
+    <p>Gibbs and Arrhenius explained why reactions occur (or don’t).</p>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/0/07/Gibbs_free_energy.svg" alt="Gibbs Energy">
+  </div>
+  <div class="slide">
+    <h2>Slide 10: Instrumental Revolution</h2>
+    <p>New machines like spectrometers revealed molecular structures.</p>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/2/25/NMR_Spectrum.png" alt="NMR Spectrum">
+  </div>
+  <div class="slide">
+    <h2>Slide 11: Modern Innovations</h2>
+    <p>Green chemistry, nanotechnology, and AI models lead the frontier.</p>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/b/bf/Carbon_nanotube_model.png" alt="Carbon Nanotube">
+  </div>
+  <div class="slide">
+    <h2>Slide 12: Chemistry Tomorrow</h2>
+    <p>Sustainable tech, synthetic biology, and fusion energy await.</p>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/b/bc/Smart_materials.png" alt="Smart Materials">
+  </div>
 </body>
 </html>
