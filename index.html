@@ -284,11 +284,64 @@
         @media (max-width: 400px) {
             .slide-content {
                 padding: 0.2rem;
+                max-width: 100vw;
             }
             .nav-btn {
-                font-size: 1rem;
-                padding: 16px 20px;
+                font-size: 0.9rem;
+                padding: 12px 10px;
+                min-width: 0;
             }
+            .slide-counter {
+                top: 0.5rem;
+                right: 0.5rem;
+                padding: 6px 10px;
+                font-size: 0.9rem;
+            }
+            .periodic-table-mini {
+                max-width: 98vw;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 2px;
+            }
+            .element-box {
+                font-size: 0.7rem;
+                padding: 2px;
+            }
+            .beaker-animation, .atom-model, .dna-helix, .molecular-structure {
+                width: 90vw !important;
+                max-width: 200px;
+                min-width: 80px;
+                height: auto !important;
+            }
+            .scientist-portrait {
+                width: 60px;
+                height: 60px;
+                font-size: 1.2rem;
+            }
+            h1, h2, h3 {
+                word-break: break-word;
+            }
+        }
+
+        /* Extra: Prevent horizontal scroll on all screens */
+        html, body {
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+        
+        /* Make video and wide elements responsive */
+        .slide-content iframe, .slide-content video, .slide-content .periodic-table-mini {
+            max-width: 100vw;
+            width: 100%;
+            height: auto;
+        }
+        
+        /* Ensure navigation buttons never overflow */
+        .navigation {
+            width: 100vw;
+            max-width: 100vw;
+            left: 0;
+            transform: none;
+            justify-content: center;
         }
 
         .floating-molecules {
