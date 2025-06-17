@@ -1,588 +1,484 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The History of Chemistry</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The History of Chemistry</title>
 
-    <!-- =========================================================
-         STYLE
-    ========================================================== -->
-    <style>
-        /* ---------- Base layout & fonts ---------- */
-        html, body{
-            height:100%;margin:0;padding:0;box-sizing:border-box;
-            background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-            font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
-            overflow:hidden;
-        }
-        .presentation-root{
-            width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;position:relative;
-        }
+<!-- =========================================================
+     STYLE
+========================================================== -->
+<style>
+/* ---------- Base layout & fonts ---------- */
+html,body{
+    height:100%;margin:0;padding:0;box-sizing:border-box;
+    background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;overflow:hidden;}
+.presentation-root{width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;position:relative;}
 
-        /* ---------- Slides ---------- */
-        .slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-            opacity:0;pointer-events:none;transition:opacity .5s;}
-        .slide.active{opacity:1;pointer-events:auto;}
+/* ---------- Slides ---------- */
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .5s;}
+.slide.active{opacity:1;pointer-events:auto;}
+.slide-content{background:rgba(255,255,255,.97);border-radius:24px;box-shadow:0 8px 40px rgba(0,0,0,.18);
+    max-width:700px;width:90vw;max-height:80vh;padding:2rem 1.5rem;display:flex;flex-direction:column;align-items:center;overflow:hidden;}
 
-        .slide-content{
-            background:rgba(255,255,255,.97);border-radius:24px;
-            box-shadow:0 8px 40px rgba(0,0,0,.18);
-            max-width:700px;width:90vw;max-height:80vh;
-            padding:2rem 1.5rem;display:flex;flex-direction:column;align-items:center;overflow:hidden;
-        }
+/* ---------- Typography ---------- */
+h1,h2,h3{margin:.5rem 0;text-align:center;word-break:break-word;}
+h1{font-size:2.5rem;background:linear-gradient(135deg,#667eea,#764ba2);
+   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+h2{font-size:1.7rem;color:#2d3748;}h3{font-size:1.2rem;color:#4a5568;}
+p {font-size:1rem;color:#2d3748;margin:.5rem 0 1rem;text-align:center;}
 
-        /* ---------- Typography ---------- */
-        h1,h2,h3{margin:.5rem 0;text-align:center;word-break:break-word;}
-        h1{
-            font-size:2.5rem;
-            background:linear-gradient(135deg,#667eea,#764ba2);
-            -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-        }
-        h2{font-size:1.7rem;color:#2d3748;}
-        h3{font-size:1.2rem;color:#4a5568;}
-        p{font-size:1rem;color:#2d3748;margin:.5rem 0 1rem;text-align:center;}
+/* ---------- Utility blocks ---------- */
+.chemical-formula{font-family:'Courier New',monospace;background:linear-gradient(135deg,#ff9a9e,#fecfef);
+    padding:8px 16px;border-radius:8px;font-weight:bold;margin:.5rem 0;}
+.timeline-item{background:linear-gradient(135deg,rgba(102,126,234,.1),rgba(118,75,162,.1));
+    border-radius:12px;padding:1rem;margin:.5rem 0;border-left:4px solid #667eea;box-shadow:0 4px 16px rgba(0,0,0,.07);width:100%;}
+.timeline-year{font-size:1.1rem;font-weight:bold;color:#667eea;margin-bottom:.2rem;}
+.timeline-flex{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+.timeline-flex img{flex:0 0 30%;max-width:30%;height:auto;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.12);}
 
-        /* ---------- Utility blocks ---------- */
-        .chemical-formula{
-            font-family:'Courier New',monospace;
-            background:linear-gradient(135deg,#ff9a9e,#fecfef);
-            padding:8px 16px;border-radius:8px;font-weight:bold;margin:.5rem 0;
-        }
-        .timeline-item{
-            background:linear-gradient(135deg,rgba(102,126,234,.1),rgba(118,75,162,.1));
-            border-radius:12px;padding:1rem;margin:.5rem 0;border-left:4px solid #667eea;
-            box-shadow:0 4px 16px rgba(0,0,0,.07);width:100%;
-        }
-        .timeline-year{font-size:1.1rem;font-weight:bold;color:#667eea;margin-bottom:.2rem;}
+.scientist-grid{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;margin:1rem 0;}
+.scientist-card{background:linear-gradient(135deg,rgba(255,255,255,.2),rgba(255,255,255,.1));border-radius:14px;padding:1rem;
+    box-shadow:0 6px 18px rgba(0,0,0,.08);border:1px solid rgba(255,255,255,.2);min-width:120px;max-width:180px;flex:1 1 120px;text-align:center;}
+.scientist-portrait,.scientist-photo{width:64px;height:64px;border-radius:32px;margin:0 auto .5rem;display:flex;align-items:center;justify-content:center;}
+.scientist-portrait{background:linear-gradient(135deg,#667eea,#764ba2);font-size:1.5rem;color:#fff;}
+.scientist-photo{object-fit:cover;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+.slide-img{width:55%;max-width:320px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.12);margin:1rem auto;height:auto;}
 
-        /* ---------- Image wrappers ---------- */
-        .timeline-flex{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
-        /* slightly smaller so nothing clips */
-        .timeline-flex img{
-            flex:0 0 30%;
-            max-width:30%;
-            height:auto;
-            border-radius:12px;
-            box-shadow:0 4px 16px rgba(0,0,0,.12);
-        }
+/* ---------- Works cited ---------- */
+.works-box{max-height:60vh;overflow-y:auto;text-align:left;font-size:.9rem;line-height:1.4;}
+.works-box p{margin:.3rem 0;text-indent:-1.2rem;padding-left:1.2rem;}
 
-        .scientist-grid{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;margin:1rem 0;}
-        .scientist-card{
-            background:linear-gradient(135deg,rgba(255,255,255,.2),rgba(255,255,255,.1));
-            border-radius:14px;padding:1rem;box-shadow:0 6px 18px rgba(0,0,0,.08);
-            border:1px solid rgba(255,255,255,.2);min-width:120px;max-width:180px;
-            flex:1 1 120px;text-align:center;
-        }
-        .scientist-portrait,.scientist-photo{
-            width:64px;height:64px;border-radius:32px;
-            margin:0 auto .5rem;display:flex;align-items:center;justify-content:center;
-        }
-        .scientist-portrait{
-            background:linear-gradient(135deg,#667eea,#764ba2);
-            font-size:1.5rem;color:#fff;
-        }
-        .scientist-photo{
-            object-fit:cover;box-shadow:0 2px 8px rgba(0,0,0,.15);
-        }
+/* ---------- Navigation ---------- */
+.navigation{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);display:flex;gap:1rem;z-index:1000;}
+.nav-btn{background:#667eea;color:#fff;border:none;padding:10px 20px;border-radius:50px;cursor:pointer;font-size:1rem;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,.13);transition:background .2s;}
+.nav-btn:hover:not(:disabled){background:#5a62d6;} .nav-btn:disabled{opacity:.5;cursor:not-allowed;}
+.slide-counter{position:fixed;top:1rem;right:1.5rem;background:rgba(255,255,255,.9);padding:6px 14px;border-radius:18px;font-weight:600;color:#2d3748;z-index:1000;}
 
-        /* hero images (Lewis dot etc.) */
-        .slide-img{
-            width:55%;
-            max-width:320px;
-            border-radius:12px;
-            box-shadow:0 4px 16px rgba(0,0,0,.12);
-            margin:1rem auto;
-            height:auto;
-        }
-
-        /* ---------- Works cited ---------- */
-        .works-box{
-            max-height:60vh;overflow-y:auto;text-align:left;font-size:.9rem;line-height:1.4;
-        }
-        .works-box p{margin:.3rem 0;text-indent:-1.2rem;padding-left:1.2rem;}
-
-        /* ---------- Navigation ---------- */
-        .navigation{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);display:flex;gap:1rem;z-index:1000;}
-        .nav-btn{
-            background:#667eea;color:#fff;border:none;padding:10px 20px;border-radius:50px;cursor:pointer;
-            font-size:1rem;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,.13);transition:background .2s;
-        }
-        .nav-btn:hover:not(:disabled){background:#5a62d6;}
-        .nav-btn:disabled{opacity:.5;cursor:not-allowed;}
-
-        .slide-counter{
-            position:fixed;top:1rem;right:1.5rem;background:rgba(255,255,255,.9);
-            padding:6px 14px;border-radius:18px;font-weight:600;color:#2d3748;z-index:1000;
-        }
-
-        /* ---------- Responsive tweaks ---------- */
-        @media(max-width:600px){
-            .slide-content{max-width:98vw;padding:.7rem .2rem;}
-            h1{font-size:1.3rem;}h2{font-size:1.1rem;}h3{font-size:1rem;}
-            .nav-btn{font-size:.9rem;padding:8px 12px;}
-            .slide-counter{font-size:.9rem;padding:4px 8px;}
-            .slide-img{width:85%;}
-            .timeline-flex img{max-width:70%;flex:0 0 70%;}
-        }
-    </style>
+/* ---------- Responsive tweaks ---------- */
+@media(max-width:600px){
+    .slide-content{max-width:98vw;padding:.7rem .2rem;}
+    h1{font-size:1.3rem;}h2{font-size:1.1rem;}h3{font-size:1rem;}
+    .nav-btn{font-size:.9rem;padding:8px 12px;}
+    .slide-counter{font-size:.9rem;padding:4px 8px;}
+    .slide-img{width:85%;}
+    .timeline-flex img{max-width:70%;flex:0 0 70%;}
+}
+</style>
 </head>
+
 <body>
 <div class="presentation-root">
 
-    <!-- =========================================================
-         1. Title slide
-    ========================================================== -->
-    <div class="slide active">
-        <div class="slide-content">
-            <h1>The History of Chemistry</h1>
-            <h3>From Ancient Alchemy to Modern Innovations</h3>
-            <p>Embark on an illuminating exploration of chemistry's evolution, uncovering the groundbreaking discoveries, transformative theories, and innovative techniques that have defined our grasp of matter and revolutionized society.</p>
-            <div class="chemical-formula">H₂O + NaCl → Solutions of Life</div>
-        </div>
-    </div>
+<!-- 1. Title slide -->
+<div class="slide active">
+  <div class="slide-content">
+    <h1>The History of Chemistry</h1>
+    <h3>From Ancient Alchemy to Modern Innovations</h3>
+    <p>Embark on an illuminating exploration of chemistry's evolution, uncovering the groundbreaking discoveries, transformative theories, and innovative techniques that have defined our grasp of matter and revolutionized society.</p>
+    <div class="chemical-formula">H₂O + NaCl → Solutions of Life</div>
+  </div>
+</div>
 
-    <!-- =========================================================
-         2. Ancient metallurgy
-    ========================================================== -->
-    <div class="slide">
-        <div class="slide-content">
-            <h2>Ancient Beginnings (3000 BCE – 300 CE)</h2>
-            <div class="timeline-item">
-                <div class="timeline-year">3000 – 1000 BCE</div>
-                <h3>Metallurgy and Early Chemistry</h3>
-                <p>Civilizations in Egypt, Mesopotamia, and China mastered metal extraction and alloy creation—copper smelting, bronze (Cu + Sn) forging, and early iron working—pioneering techniques that underpin modern chemical engineering.</p>
-            </div>
-        </div>
+<!-- 2. Ancient metallurgy -->
+<div class="slide">
+  <div class="slide-content">
+    <h2>Ancient Beginnings (3000 BCE – 300 CE)</h2>
+    <div class="timeline-item">
+      <div class="timeline-year">3000 – 1000 BCE</div>
+      <h3>Metallurgy and Early Chemistry</h3>
+      <p>Civilizations in Egypt, Mesopotamia, and China mastered metal extraction and alloy creation—copper smelting, bronze forging, and early iron working—pioneering techniques that underpin modern chemical engineering.</p>
     </div>
+  </div>
+</div>
 
-    <!-- =========================================================
-         3. Alchemy emerges
-    ========================================================== -->
-    <div class="slide">
-        <div class="slide-content">
-            <h2>Ancient Beginnings (cont.)</h2>
-            <div class="timeline-item">
-                <div class="timeline-year">300 – 1200 CE</div>
-                <h3>Alchemy Emerges</h3>
-                <p>Thinkers from Aristotle's four-elements concept to Islamic pioneers like Jabir ibn Hayyan refined chemistry by inventing apparatus and isolating strong acids such as sulfuric (H₂SO₄) and nitric (HNO₃).</p>
-            </div>
-        </div>
+<!-- 3. Alchemy emerges -->
+<div class="slide">
+  <div class="slide-content">
+    <h2>Ancient Beginnings (cont.)</h2>
+    <div class="timeline-item">
+      <div class="timeline-year">300 – 1200 CE</div>
+      <h3>Alchemy Emerges</h3>
+      <p>Thinkers from Aristotle's four-elements concept to Islamic pioneers like Jabir ibn Hayyan refined chemistry by inventing apparatus and isolating strong acids such as sulfuric and nitric acid.</p>
     </div>
+  </div>
+</div>
 
-    <!-- =========================================================
-         4. Alchemical period overview
-    ========================================================== -->
-    <div class="slide">
-        <div class="slide-content">
-            <h2>The Alchemical Period (300 – 1600 CE)</h2>
-            <p>Bridging mystical tradition and practical experimentation, alchemists strove to transform base metals into gold and to uncover the legendary elixir of life, laying conceptual groundwork for modern chemical methodology.</p>
-        </div>
+<!-- 4. Alchemy overview + IMG_8472 -->
+<div class="slide">
+  <div class="slide-content">
+    <h2>The Alchemical Period (300 – 1600 CE)</h2>
+    <div class="timeline-item timeline-flex">
+      <div>
+        <p>Bridging mystical tradition and practical experimentation, alchemists strove to transform base metals into gold and to uncover the legendary elixir of life, laying conceptual groundwork for modern chemical methodology.</p>
+      </div>
+      <img src="IMG_8472.jpeg" alt="Medieval alchemy illustration">
     </div>
+  </div>
+</div>
 
-    <!-- =========================================================
-         5. Alchemical pioneers
-    ========================================================== -->
-    <div class="slide">
-        <div class="slide-content">
-            <h2>Alchemical Pioneers</h2>
-            <div class="scientist-grid">
-                <div class="scientist-card">
-                    <div class="scientist-portrait">🧪</div>
-                    <h3>Jabir ibn Hayyan<br>(721 – 815)</h3>
-                    <p>Developed laboratory equipment, discovered HCl, and laid groundwork for experimental chemistry.</p>
-                </div>
-                <div class="scientist-card">
-                    <div class="scientist-portrait">⚗️</div>
-                    <h3>Al-Razi<br>(854 – 925)</h3>
-                    <p>First to use alcohol medically; classified substances into animal, vegetable, and mineral.</p>
-                </div>
-                <div class="scientist-card">
-                    <div class="scientist-portrait">💊</div>
-                    <h3>Paracelsus<br>(1493 – 1541)</h3>
-                    <p>Pioneered chemical remedies in medicine, linking disease to chemical causes.</p>
-                </div>
-            </div>
-        </div>
+<!-- 5. Alchemical pioneers -->
+<div class="slide">
+  <div class="slide-content">
+    <h2>Alchemical Pioneers</h2>
+    <div class="scientist-grid">
+      <div class="scientist-card">
+        <div class="scientist-portrait">🧪</div>
+        <h3>Jabir ibn Hayyan<br>(721 – 815)</h3>
+        <p>Developed laboratory equipment, discovered HCl, and laid groundwork for experimental chemistry.</p>
+      </div>
+      <div class="scientist-card">
+        <div class="scientist-portrait">⚗️</div>
+        <h3>Al-Razi<br>(854 – 925)</h3>
+        <p>First to use alcohol medically; classified substances into animal, vegetable, and mineral.</p>
+      </div>
+      <div class="scientist-card">
+        <div class="scientist-portrait">💊</div>
+        <h3>Paracelsus<br>(1493 – 1541)</h3>
+        <p>Pioneered chemical remedies in medicine, linking disease to chemical causes.</p>
+      </div>
     </div>
+  </div>
+</div>
 
-    <!-- =========================================================
-         6. Robert Boyle
-    ========================================================== -->
-    <div class="slide">
-        <div class="slide-content">
-            <h2>Birth of Modern Chemistry (1600 – 1800)</h2>
-            <div class="timeline-item timeline-flex">
-                <div>
-                    <div class="timeline-year">1661</div>
-                    <h3>Robert Boyle — <em>The Sceptical Chymist</em></h3>
-                    <p>Defined elements as pure substances and articulated Boyle's Law (PV = constant at constant T), founding quantitative chemistry.</p>
-                </div>
-                <img src="IMG_8468.jpeg" alt="Robert Boyle portrait">
-            </div>
-        </div>
+<!-- 6. Boyle -->
+<div class="slide">
+  <div class="slide-content">
+    <h2>Birth of Modern Chemistry (1600 – 1800)</h2>
+    <div class="timeline-item timeline-flex">
+      <div>
+        <div class="timeline-year">1661</div>
+        <h3>Robert Boyle — <em>The Sceptical Chymist</em></h3>
+        <p>Defined elements as pure substances and articulated Boyle's Law (PV = constant at constant T), founding quantitative chemistry.</p>
+      </div>
+      <img src="IMG_8468.jpeg" alt="Robert Boyle portrait">
     </div>
+  </div>
+</div>
 
-    <!-- =========================================================
-         7. Lavoisier & oxygen
-    ========================================================== -->
-    <div class="slide">
-        <div class="slide-content">
-            <h2>Birth of Modern Chemistry (cont.)</h2>
-            <div class="timeline-item">
-                <div class="timeline-year">1774 – 1777</div>
-                <h3>Discovery of Oxygen</h3>
-                <p>Priestley's pneumatic experiments and Lavoisier's measurements unveiled oxygen, revolutionizing combustion theory.</p>
-            </div>
-            <div class="timeline-item timeline-flex">
-                <div>
-                    <div class="timeline-year">1789</div>
-                    <h3>Lavoisier’s <em>Traité Élémentaire de Chimie</em></h3>
-                    <p>Codified the Law of Conservation of Mass and introduced the first systematic element classification.</p>
-                </div>
-                <img src="IMG_8466.jpeg" alt="Antoine Lavoisier portrait">
-            </div>
-        </div>
+<!-- 7. Oxygen / Lavoisier -->
+<div class="slide">
+  <div class="slide-content">
+    <h2>Birth of Modern Chemistry (cont.)</h2>
+    <div class="timeline-item">
+      <div class="timeline-year">1774 – 1777</div>
+      <h3>Discovery of Oxygen</h3>
+      <p>Priestley's pneumatic experiments and Lavoisier's precise measurements unveiled oxygen, revolutionizing combustion theory.</p>
     </div>
+    <div class="timeline-item timeline-flex">
+      <div>
+        <div class="timeline-year">1789</div>
+        <h3>Lavoisier’s <em>Traité Élémentaire de Chimie</em></h3>
+        <p>Codified the Law of Conservation of Mass and introduced the first systematic classification of elements.</p>
+      </div>
+      <img src="IMG_8466.jpeg" alt="Antoine Lavoisier portrait">
+    </div>
+  </div>
+</div>
 
-    <!-- =========================================================
-         8. Dalton & Avogadro
-    ========================================================== -->
-    <div class="slide">
-        <div class="slide-content">
-            <h2>Atomic Theory Revolution (1800 – 1860)</h2>
-            <div class="scientist-grid">
-                <div class="scientist-card">
-                    <div class="scientist-portrait">⚛️</div>
-                    <h3>John Dalton<br>(1803)</h3>
-                    <p>Proposed atoms as indivisible particles unique to each element; reactions rearrange atoms.</p>
-                </div>
-                <div class="scientist-card">
-                    <div class="scientist-portrait">🔬</div>
-                    <h3>Amedeo Avogadro<br>(1811)</h3>
-                    <p>Equal volumes of gas under identical conditions contain equal numbers of molecules.</p>
-                </div>
-            </div>
-        </div>
+<!-- 8. Dalton & Avogadro -->
+<div class="slide">
+  <div class="slide-content">
+    <h2>Atomic Theory Revolution (1800 – 1860)</h2>
+    <div class="scientist-grid">
+      <div class="scientist-card">
+        <div class="scientist-portrait">⚛️</div>
+        <h3>John Dalton<br>(1803)</h3>
+        <p>Proposed atoms as indivisible particles unique to each element; reactions rearrange atoms.</p>
+      </div>
+      <div class="scientist-card">
+        <div class="scientist-portrait">🔬</div>
+        <h3>Amedeo Avogadro<br>(1811)</h3>
+        <p>Equal volumes of gas under identical conditions contain equal numbers of molecules.</p>
+      </div>
     </div>
+  </div>
+</div>
 
-    <!-- =========================================================
-         9. Gay-Lussac
-    ========================================================== -->
-    <div class="slide">
-        <div class="slide-content">
-            <h2>Atomic Theory Revolution (cont.)</h2>
-            <div class="scientist-grid">
-                <div class="scientist-card">
-                    <div class="scientist-portrait">🌡️</div>
-                    <h3>Gay-Lussac<br>(1808)</h3>
-                    <p>Showed gases react in simple volume ratios, guiding quantitative chemistry.</p>
-                </div>
-            </div>
-        </div>
+<!-- 9. Gay-Lussac -->
+<div class="slide">
+  <div class="slide-content">
+    <h2>Atomic Theory Revolution (cont.)</h2>
+    <div class="scientist-grid">
+      <div class="scientist-card">
+        <div class="scientist-portrait">🌡️</div>
+        <h3>Gay-Lussac<br>(1808)</h3>
+        <p>Showed gases react in simple volume ratios, guiding quantitative chemistry.</p>
+      </div>
     </div>
+  </div>
+</div>
 
-    <!-- =========================================================
-         10. Mendeleev
-    ========================================================== -->
-    <div class="slide">
-        <div class="slide-content">
-            <h2>The Periodic System (1860 – 1900)</h2>
-            <div class="timeline-item">
-                <div class="timeline-year">1869</div>
-                <h3>Dmitri Mendeleev — Periodic Table</h3>
-                <p>Arranged elements by atomic weight, left gaps, and predicted properties of undiscovered elements, validating periodic law.</p>
-            </div>
-        </div>
+<!-- 10. Periodic system + periodic-table image -->
+<div class="slide">
+  <div class="slide-content">
+    <h2>The Periodic System (1860 – 1900)</h2>
+    <div class="timeline-item timeline-flex">
+      <div>
+        <div class="timeline-year">1869</div>
+        <h3>Dmitri Mendeleev — Periodic Table</h3>
+        <p>Arranged elements by atomic weight, left gaps, and predicted properties of undiscovered elements, validating periodic law.</p>
+      </div>
+      <img src="IMG_8471.png" alt="Original periodic table">
     </div>
+  </div>
+</div>
 
-    <!-- =========================================================
-         11. Electron discovery
-    ========================================================== -->
-    <div class="slide">
-        <div class="slide-content">
-            <h2>The Periodic System (cont.)</h2>
-            <div class="timeline-item">
-                <div class="timeline-year">1897</div>
-                <h3>J.J. Thomson — Discovery of Electron</h3>
-                <p>Cathode-ray experiments revealed electrons, proving atoms are divisible.</p>
-            </div>
-        </div>
+<!-- 11. Electron -->
+<div class="slide">
+  <div class="slide-content">
+    <h2>The Periodic System (cont.)</h2>
+    <div class="timeline-item">
+      <div class="timeline-year">1897</div>
+      <h3>J.J. Thomson — Discovery of Electron</h3>
+      <p>Cathode-ray experiments revealed electrons, proving atoms are divisible.</p>
     </div>
+  </div>
+</div>
 
-    <!-- =========================================================
-         12. Rutherford & Bohr
-    ========================================================== -->
-    <div class="slide">
-        <div class="slide-content">
-            <h2>Quantum Chemistry Era (1900 – 1950)</h2>
-            <div class="scientist-grid">
-                <div class="scientist-card">
-                    <div class="scientist-portrait">🎯</div>
-                    <h3>Ernest Rutherford<br>(1911)</h3>
-                    <p>Gold-foil experiment uncovered a dense nucleus, overthrowing the plum-pudding model.</p>
-                </div>
-                <div class="scientist-card">
-                    <div class="scientist-portrait">🌟</div>
-                    <h3>Niels Bohr<br>(1913)</h3>
-                    <p>Quantized electron orbits explained hydrogen spectral lines.</p>
-                </div>
-            </div>
-        </div>
+<!-- 12. Rutherford & Bohr -->
+<div class="slide">
+  <div class="slide-content">
+    <h2>Quantum Chemistry Era (1900 – 1950)</h2>
+    <div class="scientist-grid">
+      <div class="scientist-card">
+        <div class="scientist-portrait">🎯</div>
+        <h3>Ernest Rutherford<br>(1911)</h3>
+        <p>Gold-foil experiment uncovered a dense nucleus, overthrowing the plum-pudding model.</p>
+      </div>
+      <div class="scientist-card">
+        <div class="scientist-portrait">🌟</div>
+        <h3>Niels Bohr<br>(1913)</h3>
+        <p>Quantized electron orbits explained hydrogen spectral lines.</p>
+      </div>
     </div>
+  </div>
+</div>
 
-    <!-- =========================================================
-         13. Schrödinger
-    ========================================================== -->
-    <div class="slide">
-        <div class="slide-content">
-            <h2>Quantum Chemistry Era (cont.)</h2>
-            <div class="scientist-grid">
-                <div class="scientist-card">
-                    <img src="IMG_8467.jpeg" alt="Erwin Schrödinger" class="scientist-photo">
-                    <h3>Erwin Schrödinger<br>(1926)</h3>
-                    <p>Wave equation treated electrons as probability clouds, founding quantum chemistry.</p>
-                </div>
-            </div>
-        </div>
+<!-- 13. Schrödinger -->
+<div class="slide">
+  <div class="slide-content">
+    <h2>Quantum Chemistry Era (cont.)</h2>
+    <div class="scientist-grid">
+      <div class="scientist-card">
+        <img src="IMG_8467.jpeg" alt="Erwin Schrödinger" class="scientist-photo">
+        <h3>Erwin Schrödinger<br>(1926)</h3>
+        <p>Wave equation treated electrons as probability clouds, laying the foundation of quantum chemistry.</p>
+      </div>
     </div>
+  </div>
+</div>
 
-    <!-- =========================================================
-         14. Lewis & Pauling
-    ========================================================== -->
-    <div class="slide">
-        <div class="slide-content">
-            <h2>Chemical Bonding Theories (1920 – 1960)</h2>
-            <div class="timeline-item timeline-flex">
-                <div>
-                    <div class="timeline-year">1916</div>
-                    <h3>Gilbert Lewis — Electron-Dot Structures</h3>
-                    <p>Introduced the octet rule; atoms share pairs of electrons to form covalent bonds.</p>
-                </div>
-                <img src="IMG_8465.png" alt="Lewis dot structure">
-            </div>
-            <div class="timeline-item">
-                <div class="timeline-year">1931</div>
-                <h3>Linus Pauling — Valence-Bond Theory</h3>
-                <p>Explained orbital overlap and hybridization, revolutionizing bonding concepts.</p>
-            </div>
-        </div>
+<!-- 14. Lewis & Pauling -->
+<div class="slide">
+  <div class="slide-content">
+    <h2>Chemical Bonding Theories (1920 – 1960)</h2>
+    <div class="timeline-item timeline-flex">
+      <div>
+        <div class="timeline-year">1916</div>
+        <h3>Gilbert Lewis — Electron-Dot Structures</h3>
+        <p>Introduced the octet rule; atoms share electron pairs to form covalent bonds.</p>
+      </div>
+      <img src="IMG_8465.png" alt="Lewis dot structure">
     </div>
+    <div class="timeline-item">
+      <div class="timeline-year">1931</div>
+      <h3>Linus Pauling — Valence-Bond Theory</h3>
+      <p>Explained orbital overlap and hybridization, revolutionizing bonding concepts.</p>
+    </div>
+  </div>
+</div>
 
-    <!-- =========================================================
-         15. Molecular-orbital theory
-    ========================================================== -->
-    <div class="slide">
-        <div class="slide-content">
-            <h2>Chemical Bonding Theories (cont.)</h2>
-            <div class="timeline-item">
-                <div class="timeline-year">1932</div>
-                <h3>Molecular-Orbital Theory</h3>
-                <p>Mulliken described delocalized molecular orbitals, explaining O₂’s paramagnetism.</p>
-            </div>
-        </div>
+<!-- 15. MO theory -->
+<div class="slide">
+  <div class="slide-content">
+    <h2>Chemical Bonding Theories (cont.)</h2>
+    <div class="timeline-item">
+      <div class="timeline-year">1932</div>
+      <h3>Molecular-Orbital Theory</h3>
+      <p>Mulliken described delocalized molecular orbitals, explaining O₂’s paramagnetism.</p>
     </div>
+  </div>
+</div>
 
-    <!-- =========================================================
-         16. Thermodynamics & kinetics
-    ========================================================== -->
-    <div class="slide">
-        <div class="slide-content">
-            <h2>Physical Chemistry Development (1880 – 1950)</h2>
-            <div class="scientist-grid">
-                <div class="scientist-card">
-                    <h3>Thermodynamics</h3>
-                    <p><strong>Gibbs Free Energy:</strong> ΔG = ΔH – TΔS predicts spontaneity.</p>
-                </div>
-                <div class="scientist-card">
-                    <h3>Chemical Kinetics</h3>
-                    <p><strong>Arrhenius Equation:</strong> k = A e^{–Ea/RT} links rate and temperature.</p>
-                </div>
-            </div>
-        </div>
+<!-- 16. Thermo & kinetics -->
+<div class="slide">
+  <div class="slide-content">
+    <h2>Physical Chemistry Development (1880 – 1950)</h2>
+    <div class="scientist-grid">
+      <div class="scientist-card">
+        <h3>Thermodynamics</h3>
+        <p><strong>Gibbs Free Energy:</strong> ΔG = ΔH – TΔS predicts spontaneity.</p>
+      </div>
+      <div class="scientist-card">
+        <h3>Chemical Kinetics</h3>
+        <p><strong>Arrhenius Equation:</strong> k = A e^{–Ea/RT} links rate and temperature.</p>
+      </div>
     </div>
+  </div>
+</div>
 
-    <!-- =========================================================
-         17. Acid-base
-    ========================================================== -->
-    <div class="slide">
-        <div class="slide-content">
-            <h2>Physical Chemistry Development (cont.)</h2>
-            <div class="scientist-grid">
-                <div class="scientist-card">
-                    <h3>Acid–Base Theory</h3>
-                    <p>Arrhenius, Brønsted–Lowry, and Lewis definitions unified by the pH scale.</p>
-                </div>
-            </div>
-        </div>
+<!-- 17. Acid-base -->
+<div class="slide">
+  <div class="slide-content">
+    <h2>Physical Chemistry Development (cont.)</h2>
+    <div class="scientist-grid">
+      <div class="scientist-card">
+        <h3>Acid–Base Theory</h3>
+        <p>Arrhenius, Brønsted-Lowry, and Lewis definitions unified by the pH scale.</p>
+      </div>
     </div>
+  </div>
+</div>
 
-    <!-- =========================================================
-         18. Spectroscopy & chromatography
-    ========================================================== -->
-    <div class="slide">
-        <div class="slide-content">
-            <h2>Instrumental Revolution (1950 – 1990)</h2>
-            <div class="timeline-item">
-                <div class="timeline-year">1950s – 1960s</div>
-                <h3>Spectroscopic Techniques</h3>
-                <p>NMR, IR, UV-Vis, and MS delivered unprecedented analytical precision.</p>
-            </div>
-            <div class="timeline-item">
-                <div class="timeline-year">1960s – 1970s</div>
-                <h3>Chromatography Advances</h3>
-                <p>GC-MS and HPLC transformed separation science.</p>
-            </div>
-        </div>
+<!-- 18. Spectroscopy & chromatography -->
+<div class="slide">
+  <div class="slide-content">
+    <h2>Instrumental Revolution (1950 – 1990)</h2>
+    <div class="timeline-item">
+      <div class="timeline-year">1950s – 1960s</div>
+      <h3>Spectroscopic Techniques</h3>
+      <p>NMR, IR, UV-Vis, and MS delivered unprecedented analytical precision.</p>
     </div>
+    <div class="timeline-item">
+      <div class="timeline-year">1960s – 1970s</div>
+      <h3>Chromatography Advances</h3>
+      <p>GC-MS and HPLC transformed separation science.</p>
+    </div>
+  </div>
+</div>
 
-    <!-- =========================================================
-         19. X-ray crystallography
-    ========================================================== -->
-    <div class="slide">
-        <div class="slide-content">
-            <h2>Instrumental Revolution (cont.)</h2>
-            <div class="timeline-item">
-                <div class="timeline-year">1970s – 1980s</div>
-                <h3>X-ray Crystallography</h3>
-                <p>Revealed 3-D biomolecular structures, e.g., vitamin B₁₂ and penicillin.</p>
-            </div>
-        </div>
+<!-- 19. X-ray -->
+<div class="slide">
+  <div class="slide-content">
+    <h2>Instrumental Revolution (cont.)</h2>
+    <div class="timeline-item">
+      <div class="timeline-year">1970s – 1980s</div>
+      <h3>X-ray Crystallography</h3>
+      <p>Revealed 3-D biomolecular structures, e.g., vitamin B₁₂ and penicillin.</p>
     </div>
+  </div>
+</div>
 
-    <!-- =========================================================
-         20. Nanotechnology & green chemistry
-    ========================================================== -->
-    <div class="slide">
-        <div class="slide-content">
-            <h2>Modern Chemical Innovations (1990 – Present)</h2>
-            <div class="scientist-grid">
-                <div class="scientist-card">
-                    <h3>Nanotechnology</h3>
-                    <p>Carbon nanotubes, graphene, and quantum dots enable breakthroughs in electronics, medicine, and energy.</p>
-                </div>
-                <div class="scientist-card">
-                    <h3>Green Chemistry</h3>
-                    <p>Twelve principles minimize environmental impact while maximizing efficiency.</p>
-                </div>
-            </div>
-        </div>
+<!-- 20. Nanotech & green -->
+<div class="slide">
+  <div class="slide-content">
+    <h2>Modern Chemical Innovations (1990 – Present)</h2>
+    <div class="scientist-grid">
+      <div class="scientist-card">
+        <h3>Nanotechnology</h3>
+        <p>Carbon nanotubes, graphene, and quantum dots enable breakthroughs in electronics, medicine, and energy.</p>
+      </div>
+      <div class="scientist-card">
+        <h3>Green Chemistry</h3>
+        <p>The 12 principles minimize environmental impact while maximizing efficiency.</p>
+      </div>
     </div>
+  </div>
+</div>
 
-    <!-- =========================================================
-         21. Computational & biochemistry
-    ========================================================== -->
-    <div class="slide">
-        <div class="slide-content">
-            <h2>Modern Chemical Innovations (cont.)</h2>
-            <div class="scientist-grid">
-                <div class="scientist-card">
-                    <h3>Computational Chemistry</h3>
-                    <p>Density-functional theory and molecular modelling predict reaction pathways in silico.</p>
-                </div>
-                <div class="scientist-card">
-                    <h3>Biochemistry Integration</h3>
-                    <p>CRISPR and enzyme engineering merge chemistry with biology.</p>
-                </div>
-            </div>
-        </div>
+<!-- 21. Computational & biochem -->
+<div class="slide">
+  <div class="slide-content">
+    <h2>Modern Chemical Innovations (cont.)</h2>
+    <div class="scientist-grid">
+      <div class="scientist-card">
+        <h3>Computational Chemistry</h3>
+        <p>Density-functional theory and molecular modelling predict reaction pathways in silico.</p>
+      </div>
+      <div class="scientist-card">
+        <h3>Biochemistry Integration</h3>
+        <p>CRISPR and enzyme engineering merge chemistry with biology.</p>
+      </div>
     </div>
+  </div>
+</div>
 
-    <!-- =========================================================
-         22. Today & tomorrow
-    ========================================================== -->
-    <div class="slide">
-        <div class="slide-content">
-            <h2>Chemistry Today and Tomorrow</h2>
-            <p>Modern chemistry continues to evolve with emerging fields and technologies:</p>
-            <div class="timeline-item">
-                <h3>Current Frontiers</h3>
-                <p>Smart materials, next-gen energy, precision medicine, and sustainable catalysis are shaping the future.</p>
-            </div>
-            <h3 style="margin-top:1rem;color:#667eea;">The adventure continues…</h3>
-        </div>
+<!-- 22. Today & tomorrow -->
+<div class="slide">
+  <div class="slide-content">
+    <h2>Chemistry Today and Tomorrow</h2>
+    <p>Modern chemistry continues to evolve with emerging fields and technologies:</p>
+    <div class="timeline-item">
+      <h3>Current Frontiers</h3>
+      <p>Smart materials, next-gen energy, precision medicine, and sustainable catalysis are shaping the future.</p>
     </div>
+    <h3 style="margin-top:1rem;color:#667eea;">The adventure continues…</h3>
+  </div>
+</div>
 
-    <!-- =========================================================
-         23. Works Cited
-    ========================================================== -->
-    <div class="slide">
-        <div class="slide-content">
-            <h2>Works Cited</h2>
-            <div class="works-box">
-                <p>Arrhenius, Svante. “On the Reaction Velocity of the Inversion of Cane Sugar by Acids.” <em>Zeitschrift für Physikalische Chemie</em>, vol.&nbsp;4, 1889, pp.&nbsp;226-248.</p>
-                <p>Atkins, Peter, and Julio de Paula. <em>Atkins’ Physical Chemistry</em>. 11th ed., Oxford UP, 2018.</p>
-                <p>Boyle, Robert. <em>The Sceptical Chymist</em>. Dover Publications, 2003.</p>
-                <p>Hodgkin, Dorothy C. “The X-Ray Determination of the Structure of Penicillin.” <em>Proceedings of the Royal Society A</em>, vol.&nbsp;200, 1949, pp.&nbsp;94-105.</p>
-                <p>Lavoisier, Antoine-Laurent. <em>Elements of Chemistry</em>. Translated by Robert Kerr, Dover Publications, 1965.</p>
-                <p>Mendeleev, Dmitri. “On the Relation of the Properties to the Atomic Weights of the Elements.” <em>Journal of the Russian Chemical Society</em>, vol.&nbsp;1, 1869, pp.&nbsp;60-77.</p>
-                <p>Schrödinger, Erwin. “Quantisierung als Eigenwertproblem.” <em>Annalen der Physik</em>, vol.&nbsp;384, no.&nbsp;4, 1926, pp.&nbsp;361-376.</p>
-                <p>“12 Principles of Green Chemistry.” <em>American Chemical Society</em>, 2025, www.acs.org/green-chemistry-sustainability/principles/12-principles-of-green-chemistry.html. Accessed 17 June 2025.</p>
-            </div>
-        </div>
+<!-- 23. Works Cited -->
+<div class="slide">
+  <div class="slide-content">
+    <h2>Works Cited</h2>
+    <div class="works-box">
+      <p>Arrhenius, Svante. “On the Reaction Velocity of the Inversion of Cane Sugar by Acids.” <em>Zeitschrift für Physikalische Chemie</em>, vol. 4, 1889, pp. 226-248.</p>
+      <p>Atkins, Peter, and Julio de Paula. <em>Atkins’ Physical Chemistry</em>. 11th ed., Oxford UP, 2018.</p>
+      <p>Boyle, Robert. <em>The Sceptical Chymist</em>. Dover Publications, 2003.</p>
+      <p>Hodgkin, Dorothy C. “The X-Ray Determination of the Structure of Penicillin.” <em>Proceedings of the Royal Society A</em>, vol. 200, 1949, pp. 94-105.</p>
+      <p>Lavoisier, Antoine-Laurent. <em>Elements of Chemistry</em>. Translated by Robert Kerr, Dover Publications, 1965.</p>
+      <p>Mendeleev, Dmitri. “On the Relation of the Properties to the Atomic Weights of the Elements.” <em>Journal of the Russian Chemical Society</em>, vol. 1, 1869, pp. 60-77.</p>
+      <p>Schrödinger, Erwin. “Quantisierung als Eigenwertproblem.” <em>Annalen der Physik</em>, vol. 384, no. 4, 1926, pp. 361-376.</p>
+      <p>“12 Principles of Green Chemistry.” <em>American Chemical Society</em>, 2025, www.acs.org/green-chemistry-sustainability/principles/12-principles-of-green-chemistry.html. Accessed 17 June 2025.</p>
     </div>
+  </div>
+</div>
 
-    <!-- =========================================================
-         24. Video slide
-    ========================================================== -->
-    <div class="slide">
-        <div class="slide-content">
-            <h2>Special Feature: Chem's Plan</h2>
-            <p>Watch the video below for an amazing chemistry music video!</p>
-            <div style="position:relative;width:100%;max-width:800px;margin:0 auto;padding-bottom:56.25%;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.13);background:#222;">
-                <iframe src="https://drive.google.com/file/d/1ukzMdUVCL-Z2Jr4q-FHtOHZpBmHBrj7f/preview"
-                        style="position:absolute;inset:0;width:100%;height:100%;border:0;"
-                        allow="autoplay; encrypted-media" allowfullscreen></iframe>
-            </div>
-            <p style="font-size:0.9rem;color:#888;margin-top:0.5rem;">
-                If the video does not play,
-                <a href="https://drive.google.com/file/d/1ukzMdUVCL-Z2Jr4q-FHtOHZpBmHBrj7f/view?usp=sharing"
-                   target="_blank" rel="noopener" style="color:#667eea;text-decoration:none;">
-                    click here to view or download <em>Chem's Plan.MOV</em>
-                </a>.
-            </p>
-        </div>
+<!-- 24. Video -->
+<div class="slide">
+  <div class="slide-content">
+    <h2>Special Feature: Chem's Plan</h2>
+    <p>Watch the video below for an amazing chemistry music video!</p>
+    <div style="position:relative;width:100%;max-width:800px;margin:0 auto;padding-bottom:56.25%;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.13);background:#222;">
+      <iframe src="https://drive.google.com/file/d/1ukzMdUVCL-Z2Jr4q-FHtOHZpBmHBrj7f/preview"
+              style="position:absolute;inset:0;width:100%;height:100%;border:0;"
+              allow="autoplay; encrypted-media" allowfullscreen></iframe>
     </div>
+    <p style="font-size:.9rem;color:#888;margin-top:.5rem;">
+      If the video does not play,
+      <a href="https://drive.google.com/file/d/1ukzMdUVCL-Z2Jr4q-FHtOHZpBmHBrj7f/view?usp=sharing"
+         target="_blank" rel="noopener" style="color:#667eea;text-decoration:none;">
+        click here to view or download <em>Chem's Plan.MOV</em>
+      </a>.
+    </p>
+  </div>
+</div>
 
-    <!-- =========================================================
-         Navigation & Counter
-    ========================================================== -->
-    <div class="navigation">
-        <button class="nav-btn" id="prev-btn" onclick="changeSlide(-1)">← Previous</button>
-        <button class="nav-btn" id="next-btn" onclick="changeSlide(1)">Next →</button>
-    </div>
-    <div class="slide-counter">
-        <span id="current-slide">1</span> / <span id="total-slides">24</span>
-    </div>
+<!-- ---------- Navigation & counter ---------- -->
+<div class="navigation">
+  <button class="nav-btn" id="prev-btn" onclick="changeSlide(-1)">← Previous</button>
+  <button class="nav-btn" id="next-btn" onclick="changeSlide(1)">Next →</button>
+</div>
+<div class="slide-counter">
+  <span id="current-slide">1</span> / <span id="total-slides">24</span>
+</div>
 </div>
 
 <!-- =========================================================
      SCRIPT
 ========================================================== -->
 <script>
-    let currentSlide = 0;
-    const slides = document.querySelectorAll('.slide');
-    const totalSlides = slides.length;
-    document.getElementById('total-slides').textContent = totalSlides;
+let currentSlide=0;
+const slides=document.querySelectorAll('.slide');
+const totalSlides=slides.length;
+document.getElementById('total-slides').textContent=totalSlides;
 
-    function updateSlideDisplay() {
-        slides.forEach((s, i) => s.classList.toggle('active', i === currentSlide));
-        document.getElementById('current-slide').textContent = currentSlide + 1;
-        document.getElementById('prev-btn').disabled = currentSlide === 0;
-        document.getElementById('next-btn').disabled = currentSlide === totalSlides - 1;
-    }
-    function changeSlide(dir) {
-        const next = currentSlide + dir;
-        if (next >= 0 && next < totalSlides) {
-            currentSlide = next;
-            updateSlideDisplay();
-        }
-    }
-    document.addEventListener('keydown', e => {
-        if (e.key === 'ArrowLeft') changeSlide(-1);
-        if (e.key === 'ArrowRight') changeSlide(1);
-    });
-    updateSlideDisplay();
+function updateSlideDisplay(){
+  slides.forEach((s,i)=>s.classList.toggle('active',i===currentSlide));
+  document.getElementById('current-slide').textContent=currentSlide+1;
+  document.getElementById('prev-btn').disabled=currentSlide===0;
+  document.getElementById('next-btn').disabled=currentSlide===totalSlides-1;
+}
+function changeSlide(dir){
+  const next=currentSlide+dir;
+  if(next>=0&&next<totalSlides){currentSlide=next;updateSlideDisplay();}
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft') changeSlide(-1);
+  if(e.key==='ArrowRight') changeSlide(1);
+});
+updateSlideDisplay();
 </script>
 </body>
 </html>
