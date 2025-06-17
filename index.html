@@ -20,9 +20,30 @@
 
         .presentation-container {
             position: relative;
-            width: 100%;
-            height: 100vh;
-            overflow: hidden;
+            width: 100vw;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .presentation-box {
+            position: relative;
+            background: rgba(255,255,255,0.97);
+            border-radius: 32px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+            max-width: 1100px;
+            width: 95vw;
+            min-height: 80vh;
+            margin: 3vw auto;
+            padding: 2.5rem 1.5rem 4.5rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            overflow: visible;
         }
 
         .slide {
@@ -711,307 +732,331 @@
                 color: #f4f4f4;
             }
         }
+
+        @media (max-width: 900px) {
+            .presentation-box {
+                max-width: 98vw;
+                padding: 1.2rem 0.5rem 3.5rem 0.5rem;
+                border-radius: 18px;
+            }
+        }
+        @media (max-width: 600px) {
+            .presentation-box {
+                max-width: 100vw;
+                min-height: 90vh;
+                padding: 0.5rem 0.1rem 2.5rem 0.1rem;
+                border-radius: 10px;
+            }
+        }
+        @media (max-width: 400px) {
+            .presentation-box {
+                padding: 0.1rem 0.1rem 1.5rem 0.1rem;
+                min-height: 95vh;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="presentation-container">
-        <div class="floating-molecules">
-            <div class="molecule" style="top: 10%; left: 10%; animation-delay: 0s;"></div>
-            <div class="molecule" style="top: 20%; right: 10%; animation-delay: 1s;"></div>
-            <div class="molecule" style="bottom: 30%; left: 20%; animation-delay: 2s;"></div>
-            <div class="molecule" style="bottom: 10%; right: 20%; animation-delay: 3s;"></div>
-        </div>
-        <div class="slide-counter">
-            <span id="current-slide">1</span> / <span id="total-slides">13</span>
-        </div>
-        <!-- Slide 1: Title -->
-        <div class="slide active">
-            <div class="slide-content">
-                <h1>The History of Chemistry</h1>
-                <h3>From Ancient Alchemy to Modern Innovations</h3>
-                <p>Embark on an illuminating exploration of chemistry's evolution, uncovering the groundbreaking discoveries, transformative theories, and innovative techniques that have defined our grasp of matter and revolutionized society.</p>
-                <div class="chemical-formula">H₂O + NaCl → Solutions of Life</div>
+        <div class="presentation-box">
+            <div class="floating-molecules">
+                <div class="molecule" style="top: 10%; left: 10%; animation-delay: 0s;"></div>
+                <div class="molecule" style="top: 20%; right: 10%; animation-delay: 1s;"></div>
+                <div class="molecule" style="bottom: 30%; left: 20%; animation-delay: 2s;"></div>
+                <div class="molecule" style="bottom: 10%; right: 20%; animation-delay: 3s;"></div>
             </div>
-        </div>
-        <!-- Slide 2: Ancient Beginnings -->
-        <div class="slide">
-            <div class="slide-content">
-                <h2>Ancient Beginnings (3000 BCE - 300 CE)</h2>
-                <div class="timeline-item">
-                    <div class="timeline-year">3000-1000 BCE</div>
-                    <h3>Metallurgy and Early Chemistry</h3>
-                    <p>Civilizations in Egypt, Mesopotamia, and China mastered metal extraction and alloy creation—copper smelting, bronze (Cu+Sn) forging, and early iron working—pioneering techniques that underpin modern chemical engineering.</p>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-year">300-1200 CE</div>
-                    <h3>Alchemy Emerges</h3>
-                    <p>Thinkers from Aristotle's four-elements concept to Islamic pioneers like Jabir ibn Hayyan refined chemistry by inventing apparatus and isolating strong acids such as sulfuric (H₂SO₄) and nitric (HNO₃).</p>
+            <div class="slide-counter">
+                <span id="current-slide">1</span> / <span id="total-slides">13</span>
+            </div>
+            <!-- Slide 1: Title -->
+            <div class="slide active">
+                <div class="slide-content">
+                    <h1>The History of Chemistry</h1>
+                    <h3>From Ancient Alchemy to Modern Innovations</h3>
+                    <p>Embark on an illuminating exploration of chemistry's evolution, uncovering the groundbreaking discoveries, transformative theories, and innovative techniques that have defined our grasp of matter and revolutionized society.</p>
+                    <div class="chemical-formula">H₂O + NaCl → Solutions of Life</div>
                 </div>
             </div>
-        </div>
-        <!-- Slide 3: The Alchemical Period -->
-        <div class="slide">
-            <div class="slide-content">
-                <h2>The Alchemical Period (300-1600 CE)</h2>
-                <p>Bridging mystical tradition and practical experimentation, alchemists strove to transform base metals into gold and to uncover the legendary elixir of life, laying conceptual groundwork for modern chemical methodology.</p>
-                <div class="scientist-grid">
-                    <div class="scientist-card">
-                        <div class="scientist-portrait">🧪</div>
-                        <h3>Jabir ibn Hayyan (721-815)</h3>
-                        <p>Father of Arab chemistry. Developed laboratory equipment and techniques, discovered hydrochloric acid (HCl), and laid groundwork for experimental chemistry.</p>
+            <!-- Slide 2: Ancient Beginnings -->
+            <div class="slide">
+                <div class="slide-content">
+                    <h2>Ancient Beginnings (3000 BCE - 300 CE)</h2>
+                    <div class="timeline-item">
+                        <div class="timeline-year">3000-1000 BCE</div>
+                        <h3>Metallurgy and Early Chemistry</h3>
+                        <p>Civilizations in Egypt, Mesopotamia, and China mastered metal extraction and alloy creation—copper smelting, bronze (Cu+Sn) forging, and early iron working—pioneering techniques that underpin modern chemical engineering.</p>
                     </div>
-                    <div class="scientist-card">
-                        <div class="scientist-portrait">⚗️</div>
-                        <h3>Al-Razi (854-925)</h3>
-                        <p>Distinguished between chemistry and alchemy, classified substances into animal, vegetable, and mineral categories. First to use alcohol for medical applications.</p>
-                    </div>
-                    <div class="scientist-card">
-                        <div class="scientist-portrait">💊</div>
-                        <h3>Paracelsus (1493-1541)</h3>
-                        <p>Pioneered chemical remedies in medicine, proposing that diseases have chemical causes and can be treated with targeted compounds.</p>
-                    </div>
-                </div>
-                <div class="beaker-animation">
-                    <div class="beaker">
-                        <div class="bubble bubble1"></div>
-                        <div class="bubble bubble2"></div>
-                        <div class="bubble bubble3"></div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">300-1200 CE</div>
+                        <h3>Alchemy Emerges</h3>
+                        <p>Thinkers from Aristotle's four-elements concept to Islamic pioneers like Jabir ibn Hayyan refined chemistry by inventing apparatus and isolating strong acids such as sulfuric (H₂SO₄) and nitric (HNO₃).</p>
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- Slide 4: The Birth of Modern Chemistry -->
-        <div class="slide">
-            <div class="slide-content">
-                <h2>Birth of Modern Chemistry (1600-1800)</h2>
-                <div class="timeline-item">
-                    <div class="timeline-year">1661</div>
-                    <h3>Robert Boyle - "The Sceptical Chymist"</h3>
-                    <p>Challenged the Aristotelian four-elements paradigm by defining elements as pure substances irreducible by any method, and articulated Boyle's Law (PV = constant at constant temperature), founding quantitative chemistry.</p>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-year">1774-1777</div>
-                    <h3>Discovery of Oxygen</h3>
-                    <p>Priestley's pneumatic experiments and Lavoisier's precise mass measurements unveiled oxygen, naming it "acid producer" and revolutionizing combustion theory by debunking phlogiston.</p>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-year">1789</div>
-                    <h3>Lavoisier's "Traité Élémentaire de Chimie"</h3>
-                    <p>Lavoisier's landmark work codified the Law of Conservation of Mass—matter neither created nor destroyed—and introduced the first systematic classification of chemical elements.</p>
-                </div>
-            </div>
-        </div>
-        <!-- Slide 5: Atomic Theory Revolution -->
-        <div class="slide">
-            <div class="slide-content">
-                <h2>Atomic Theory Revolution (1800-1860)</h2>
-                <div class="scientist-grid">
-                    <div class="scientist-card">
-                        <div class="scientist-portrait">⚛️</div>
-                        <h3>John Dalton (1803)</h3>
-                        <p><strong>Atomic Theory:</strong> Proposed that all matter is composed of indivisible atoms unique to each element, and that chemical reactions rearrange these atoms without creating or destroying them.</p>
-                        <div class="chemical-formula">H₂ + Cl₂ → 2HCl</div>
+            <!-- Slide 3: The Alchemical Period -->
+            <div class="slide">
+                <div class="slide-content">
+                    <h2>The Alchemical Period (300-1600 CE)</h2>
+                    <p>Bridging mystical tradition and practical experimentation, alchemists strove to transform base metals into gold and to uncover the legendary elixir of life, laying conceptual groundwork for modern chemical methodology.</p>
+                    <div class="scientist-grid">
+                        <div class="scientist-card">
+                            <div class="scientist-portrait">🧪</div>
+                            <h3>Jabir ibn Hayyan (721-815)</h3>
+                            <p>Father of Arab chemistry. Developed laboratory equipment and techniques, discovered hydrochloric acid (HCl), and laid groundwork for experimental chemistry.</p>
+                        </div>
+                        <div class="scientist-card">
+                            <div class="scientist-portrait">⚗️</div>
+                            <h3>Al-Razi (854-925)</h3>
+                            <p>Distinguished between chemistry and alchemy, classified substances into animal, vegetable, and mineral categories. First to use alcohol for medical applications.</p>
+                        </div>
+                        <div class="scientist-card">
+                            <div class="scientist-portrait">💊</div>
+                            <h3>Paracelsus (1493-1541)</h3>
+                            <p>Pioneered chemical remedies in medicine, proposing that diseases have chemical causes and can be treated with targeted compounds.</p>
+                        </div>
                     </div>
-                    <div class="scientist-card">
-                        <div class="scientist-portrait">🔬</div>
-                        <h3>Amedeo Avogadro (1811)</h3>
-                        <p><strong>Avogadro's Law:</strong> Stated that equal volumes of gases under identical conditions contain equal numbers of molecules, leading to the definition of Avogadro's constant (6.022×10²³).</p>
-                    </div>
-                    <div class="scientist-card">
-                        <div class="scientist-portrait">🌡️</div>
-                        <h3>Gay-Lussac (1808)</h3>
-                        <p><strong>Law of Combining Volumes:</strong> Demonstrated that gases react in simple volume ratios, reinforcing atomic theory and guiding quantitative chemistry.</p>
-                    </div>
-                </div>
-                <div class="reaction-animation">
-                    <div class="reactant">H₂</div>
-                    <div class="arrow">→</div>
-                    <div class="reactant">Cl₂</div>
-                    <div class="arrow">→</div>
-                    <div class="product">2HCl</div>
-                </div>
-            </div>
-        </div>
-        <!-- Slide 6: Periodic System -->
-        <div class="slide">
-            <div class="slide-content">
-                <h2>The Periodic System (1860-1900)</h2>
-                <div class="timeline-item">
-                    <div class="timeline-year">1869</div>
-                    <h3>Dmitri Mendeleev - Periodic Table</h3>
-                    <p>Mendeleev arranged elements by atomic weight, left spaces for undiscovered elements, and accurately predicted properties of gallium, scandium, and germanium—validating the periodic law.</p>
-                </div>
-                <div style="display: flex; justify-content: center; margin: 2rem 0;">
-                    <div class="periodic-table-mini">
-                        <div class="element-box"><div class="element-number">1</div>H</div>
-                        <div class="element-box" style="grid-column: 8;"><div class="element-number">2</div>He</div>
-                        <div class="element-box"><div class="element-number">3</div>Li</div>
-                        <div class="element-box"><div class="element-number">4</div>Be</div>
-                        <div class="element-box" style="grid-column: 3;"><div class="element-number">5</div>B</div>
-                        <div class="element-box"><div class="element-number">6</div>C</div>
-                        <div class="element-box"><div class="element-number">7</div>N</div>
-                        <div class="element-box"><div class="element-number">8</div>O</div>
-                        <div class="element-box"><div class="element-number">9</div>F</div>
-                        <div class="element-box"><div class="element-number">10</div>Ne</div>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-year">1897</div>
-                    <h3>J.J. Thomson - Discovery of Electron</h3>
-                    <p>Thomson's cathode-ray experiments revealed electrons as subatomic particles, proving atoms are divisible and leading to the "plum pudding" model of atomic structure.</p>
-                </div>
-            </div>
-        </div>
-        <!-- Slide 7: Quantum Chemistry -->
-        <div class="slide">
-            <div class="slide-content">
-                <h2>Quantum Chemistry Era (1900-1950)</h2>
-                <div class="scientist-grid">
-                    <div class="scientist-card">
-                        <div class="scientist-portrait">🎯</div>
-                        <h3>Ernest Rutherford (1911)</h3>
-                        <p>Rutherford's gold foil experiment uncovered a dense, positively charged nucleus at an atom's core, overthrowing the plum pudding model.</p>
-                    </div>
-                    <div class="scientist-card">
-                        <div class="scientist-portrait">🌟</div>
-                        <h3>Niels Bohr (1913)</h3>
-                        <p>Bohr introduced quantized electron orbits to explain hydrogen's spectral lines, with energy levels given by E = –13.6/n² eV.</p>
-                    </div>
-                    <div class="scientist-card">
-                        <div class="scientist-portrait">〰️</div>
-                        <h3>Schrödinger (1926)</h3>
-                        <p>Schrödinger's wave equation described electrons as probability clouds, laying the foundation for modern quantum chemistry.</p>
-                    </div>
-                </div>
-                <div class="atom-model">
-                    <div class="nucleus"></div>
-                    <div class="orbit orbit1"><div class="electron electron1"></div></div>
-                    <div class="orbit orbit2"><div class="electron electron2"></div></div>
-                    <div class="orbit orbit3"><div class="electron electron3"></div></div>
-                </div>
-                <p>This quantum leap transformed our understanding of bonding and reactivity by applying wave mechanics to chemical phenomena.</p>
-            </div>
-        </div>
-        <!-- Slide 8: Chemical Bonding -->
-        <div class="slide">
-            <div class="slide-content">
-                <h2>Chemical Bonding Theories (1920-1960)</h2>
-                <div class="timeline-item">
-                    <div class="timeline-year">1916</div>
-                    <h3>Gilbert Lewis - Electron Dot Structures</h3>
-                    <p>Lewis introduced electron-dot notation and the octet rule, showing how atoms share electron pairs to form stable covalent bonds.</p>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-year">1931</div>
-                    <h3>Linus Pauling - Valence Bond Theory</h3>
-                    <p>Pauling's Valence Bond Theory and electronegativity scale explained orbital overlap and hybridization (sp³, sp²), revolutionizing bonding concepts.</p>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-year">1932</div>
-                    <h3>Molecular Orbital Theory</h3>
-                    <p>Mulliken's Molecular Orbital Theory described how atomic orbitals merge into delocalized molecular orbitals, accounting for properties like O₂'s paramagnetism.</p>
-                </div>
-            </div>
-        </div>
-        <!-- Slide 9: Physical Chemistry -->
-        <div class="slide">
-            <div class="slide-content">
-                <h2>Physical Chemistry Development (1880-1950)</h2>
-                <div class="scientist-grid">
-                    <div class="scientist-card">
-                        <h3>Thermodynamics</h3>
-                        <p><strong>Gibbs Free Energy:</strong> ΔG = ΔH – TΔS determines whether a reaction is spontaneous (ΔG < 0), forming the cornerstone of chemical thermodynamics.</p>
-                    </div>
-                    <div class="scientist-card">
-                        <h3>Chemical Kinetics</h3>
-                        <p><strong>Arrhenius Equation:</strong> k = A e^(–Ea/RT) quantifies temperature's effect on reaction rates, enabling predictive models for reaction behavior.</p>
-                    </div>
-                    <div class="scientist-card">
-                        <h3>Acid-Base Theory</h3>
-                        <p>From Arrhenius to Brønsted–Lowry and Lewis definitions, the pH scale and Henderson–Hasselbalch equation unify our understanding of acids, bases, and buffering.</p>
+                    <div class="beaker-animation">
+                        <div class="beaker">
+                            <div class="bubble bubble1"></div>
+                            <div class="bubble bubble2"></div>
+                            <div class="bubble bubble3"></div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- Slide 10: Instrumental Revolution -->
-        <div class="slide">
-            <div class="slide-content">
-                <h2>Instrumental Revolution (1950-1990)</h2>
-                <div class="timeline-item">
-                    <div class="timeline-year">1950s-1960s</div>
-                    <h3>Spectroscopic Techniques</h3>
-                    <p>NMR spectroscopy harnessed nuclear spin to reveal molecular structures, while IR, UV-Vis, and mass spectrometry brought unprecedented analytical precision.</p>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-year">1960s-1970s</div>
-                    <h3>Chromatography Advances</h3>
-                    <p>GC-MS and HPLC transformed separation science, allowing chemists to isolate, identify, and quantify complex mixtures with remarkable sensitivity.</p>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-year">1970s-1980s</div>
-                    <h3>X-ray Crystallography</h3>
-                    <p>X-ray crystallography unveiled 3D structures of biomolecules, highlighted by Dorothy Hodgkin's determinations of vitamin B₁₂ and penicillin.</p>
-                </div>
-            </div>
-        </div>
-        <!-- Slide 11: Modern Innovations -->
-        <div class="slide">
-            <div class="slide-content">
-                <h2>Modern Chemical Innovations (1990-Present)</h2>
-                <div class="modern-innovations">
-                    <div class="innovation-card">
-                        <div class="innovation-icon">🔬</div>
-                        <h3>Nanotechnology</h3>
-                        <p>Engineered at the nanoscale, carbon nanotubes, graphene, and quantum dots exhibit unique properties, unlocking breakthroughs in electronics, medicine, and energy.</p>
+            <!-- Slide 4: The Birth of Modern Chemistry -->
+            <div class="slide">
+                <div class="slide-content">
+                    <h2>Birth of Modern Chemistry (1600-1800)</h2>
+                    <div class="timeline-item">
+                        <div class="timeline-year">1661</div>
+                        <h3>Robert Boyle - "The Sceptical Chymist"</h3>
+                        <p>Challenged the Aristotelian four-elements paradigm by defining elements as pure substances irreducible by any method, and articulated Boyle's Law (PV = constant at constant temperature), founding quantitative chemistry.</p>
                     </div>
-                    <div class="innovation-card">
-                        <div class="innovation-icon">🌱</div>
-                        <h3>Green Chemistry</h3>
-                        <p>Guided by 12 principles—from atom economy to renewable feedstocks—green chemistry minimizes environmental impact while maximizing process efficiency.</p>
+                    <div class="timeline-item">
+                        <div class="timeline-year">1774-1777</div>
+                        <h3>Discovery of Oxygen</h3>
+                        <p>Priestley's pneumatic experiments and Lavoisier's precise mass measurements unveiled oxygen, naming it "acid producer" and revolutionizing combustion theory by debunking phlogiston.</p>
                     </div>
-                    <div class="innovation-card">
-                        <div class="innovation-icon">💻</div>
-                        <h3>Computational Chemistry</h3>
-                        <p>Leveraging density functional theory and molecular modeling, computational chemistry predicts molecular behavior and reaction pathways in silico.</p>
-                    </div>
-                    <div class="innovation-card">
-                        <div class="innovation-icon">🧬</div>
-                        <h3>Biochemistry Integration</h3>
-                        <p>Integration of chemistry and biology drives advances in enzyme catalysis, protein folding, and DNA engineering, culminating in tools like CRISPR.</p>
+                    <div class="timeline-item">
+                        <div class="timeline-year">1789</div>
+                        <h3>Lavoisier's "Traité Élémentaire de Chimie"</h3>
+                        <p>Lavoisier's landmark work codified the Law of Conservation of Mass—matter neither created nor destroyed—and introduced the first systematic classification of chemical elements.</p>
                     </div>
                 </div>
-                <div class="dna-helix">
-                    <div class="helix-strand strand1"></div>
-                    <div class="helix-strand strand2"></div>
+            </div>
+            <!-- Slide 5: Atomic Theory Revolution -->
+            <div class="slide">
+                <div class="slide-content">
+                    <h2>Atomic Theory Revolution (1800-1860)</h2>
+                    <div class="scientist-grid">
+                        <div class="scientist-card">
+                            <div class="scientist-portrait">⚛️</div>
+                            <h3>John Dalton (1803)</h3>
+                            <p><strong>Atomic Theory:</strong> Proposed that all matter is composed of indivisible atoms unique to each element, and that chemical reactions rearrange these atoms without creating or destroying them.</p>
+                            <div class="chemical-formula">H₂ + Cl₂ → 2HCl</div>
+                        </div>
+                        <div class="scientist-card">
+                            <div class="scientist-portrait">🔬</div>
+                            <h3>Amedeo Avogadro (1811)</h3>
+                            <p><strong>Avogadro's Law:</strong> Stated that equal volumes of gases under identical conditions contain equal numbers of molecules, leading to the definition of Avogadro's constant (6.022×10²³).</p>
+                        </div>
+                        <div class="scientist-card">
+                            <div class="scientist-portrait">🌡️</div>
+                            <h3>Gay-Lussac (1808)</h3>
+                            <p><strong>Law of Combining Volumes:</strong> Demonstrated that gases react in simple volume ratios, reinforcing atomic theory and guiding quantitative chemistry.</p>
+                        </div>
+                    </div>
+                    <div class="reaction-animation">
+                        <div class="reactant">H₂</div>
+                        <div class="arrow">→</div>
+                        <div class="reactant">Cl₂</div>
+                        <div class="arrow">→</div>
+                        <div class="product">2HCl</div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <!-- Slide 12: Conclusion -->
-        <div class="slide">
-            <div class="slide-content">
-                <h2>Chemistry Today and Tomorrow</h2>
-                <p>Modern chemistry continues to evolve with emerging fields and technologies:</p>
-                <div class="timeline-item">
-                    <h3>Current Frontiers</h3>
-                    <p>Innovations in smart materials, superconductors, and biomimetic composites are reshaping materials science; next-gen solar cells, fuel cells, and hydrogen technologies are transforming energy; precision drug design and targeted delivery are revolutionizing medicine; and carbon capture, pollution remediation, and sustainable catalysis are safeguarding our planet.</p>
+            <!-- Slide 6: Periodic System -->
+            <div class="slide">
+                <div class="slide-content">
+                    <h2>The Periodic System (1860-1900)</h2>
+                    <div class="timeline-item">
+                        <div class="timeline-year">1869</div>
+                        <h3>Dmitri Mendeleev - Periodic Table</h3>
+                        <p>Mendeleev arranged elements by atomic weight, left spaces for undiscovered elements, and accurately predicted properties of gallium, scandium, and germanium—validating the periodic law.</p>
+                    </div>
+                    <div style="display: flex; justify-content: center; margin: 2rem 0;">
+                        <div class="periodic-table-mini">
+                            <div class="element-box"><div class="element-number">1</div>H</div>
+                            <div class="element-box" style="grid-column: 8;"><div class="element-number">2</div>He</div>
+                            <div class="element-box"><div class="element-number">3</div>Li</div>
+                            <div class="element-box"><div class="element-number">4</div>Be</div>
+                            <div class="element-box" style="grid-column: 3;"><div class="element-number">5</div>B</div>
+                            <div class="element-box"><div class="element-number">6</div>C</div>
+                            <div class="element-box"><div class="element-number">7</div>N</div>
+                            <div class="element-box"><div class="element-number">8</div>O</div>
+                            <div class="element-box"><div class="element-number">9</div>F</div>
+                            <div class="element-box"><div class="element-number">10</div>Ne</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">1897</div>
+                        <h3>J.J. Thomson - Discovery of Electron</h3>
+                        <p>Thomson's cathode-ray experiments revealed electrons as subatomic particles, proving atoms are divisible and leading to the "plum pudding" model of atomic structure.</p>
+                    </div>
                 </div>
-                <h3 style="margin-top: 2rem; color: #667eea;">The adventure continues...</h3>
             </div>
-        </div>
-        <!-- Slide 13: Video Slide -->
-        <div class="slide">
-            <div class="slide-content">
-                <h2>Special Feature: Chem's Plan</h2>
-                <p>Watch the video below for an amazing and fantastic and beautiful and great chemistry music video!</p>
-                <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:600px;margin:0 auto;border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,0.2);background:#222;">
-                    <iframe src="https://drive.google.com/file/d/1ukzMdUVCL-Z2Jr4q-FHtOHZpBmHBrj7f/preview" allow="autoplay; encrypted-media" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;border-radius:20px;"></iframe>
+            <!-- Slide 7: Quantum Chemistry -->
+            <div class="slide">
+                <div class="slide-content">
+                    <h2>Quantum Chemistry Era (1900-1950)</h2>
+                    <div class="scientist-grid">
+                        <div class="scientist-card">
+                            <div class="scientist-portrait">🎯</div>
+                            <h3>Ernest Rutherford (1911)</h3>
+                            <p>Rutherford's gold foil experiment uncovered a dense, positively charged nucleus at an atom's core, overthrowing the plum pudding model.</p>
+                        </div>
+                        <div class="scientist-card">
+                            <div class="scientist-portrait">🌟</div>
+                            <h3>Niels Bohr (1913)</h3>
+                            <p>Bohr introduced quantized electron orbits to explain hydrogen's spectral lines, with energy levels given by E = –13.6/n² eV.</p>
+                        </div>
+                        <div class="scientist-card">
+                            <div class="scientist-portrait">〰️</div>
+                            <h3>Schrödinger (1926)</h3>
+                            <p>Schrödinger's wave equation described electrons as probability clouds, laying the foundation for modern quantum chemistry.</p>
+                        </div>
+                    </div>
+                    <div class="atom-model">
+                        <div class="nucleus"></div>
+                        <div class="orbit orbit1"><div class="electron electron1"></div></div>
+                        <div class="orbit orbit2"><div class="electron electron2"></div></div>
+                        <div class="orbit orbit3"><div class="electron electron3"></div></div>
+                    </div>
+                    <p>This quantum leap transformed our understanding of bonding and reactivity by applying wave mechanics to chemical phenomena.</p>
                 </div>
-                <p style="font-size: 1rem; color: #888; margin-top: 1rem;">If the video does not play, <a href="https://drive.google.com/file/d/1ukzMdUVCL-Z2Jr4q-FHtOHZpBmHBrj7f/view?usp=sharing" target="_blank" rel="noopener">click here to view or download Chem's Plan.MOV</a>.</p>
             </div>
-        </div>
-        <div class="navigation">
-            <button class="nav-btn" id="prev-btn" onclick="changeSlide(-1)">← Previous</button>
-            <button class="nav-btn" id="next-btn" onclick="changeSlide(1)">Next →</button>
+            <!-- Slide 8: Chemical Bonding -->
+            <div class="slide">
+                <div class="slide-content">
+                    <h2>Chemical Bonding Theories (1920-1960)</h2>
+                    <div class="timeline-item">
+                        <div class="timeline-year">1916</div>
+                        <h3>Gilbert Lewis - Electron Dot Structures</h3>
+                        <p>Lewis introduced electron-dot notation and the octet rule, showing how atoms share electron pairs to form stable covalent bonds.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">1931</div>
+                        <h3>Linus Pauling - Valence Bond Theory</h3>
+                        <p>Pauling's Valence Bond Theory and electronegativity scale explained orbital overlap and hybridization (sp³, sp²), revolutionizing bonding concepts.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">1932</div>
+                        <h3>Molecular Orbital Theory</h3>
+                        <p>Mulliken's Molecular Orbital Theory described how atomic orbitals merge into delocalized molecular orbitals, accounting for properties like O₂'s paramagnetism.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Slide 9: Physical Chemistry -->
+            <div class="slide">
+                <div class="slide-content">
+                    <h2>Physical Chemistry Development (1880-1950)</h2>
+                    <div class="scientist-grid">
+                        <div class="scientist-card">
+                            <h3>Thermodynamics</h3>
+                            <p><strong>Gibbs Free Energy:</strong> ΔG = ΔH – TΔS determines whether a reaction is spontaneous (ΔG < 0), forming the cornerstone of chemical thermodynamics.</p>
+                        </div>
+                        <div class="scientist-card">
+                            <h3>Chemical Kinetics</h3>
+                            <p><strong>Arrhenius Equation:</strong> k = A e^(–Ea/RT) quantifies temperature's effect on reaction rates, enabling predictive models for reaction behavior.</p>
+                        </div>
+                        <div class="scientist-card">
+                            <h3>Acid-Base Theory</h3>
+                            <p>From Arrhenius to Brønsted–Lowry and Lewis definitions, the pH scale and Henderson–Hasselbalch equation unify our understanding of acids, bases, and buffering.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Slide 10: Instrumental Revolution -->
+            <div class="slide">
+                <div class="slide-content">
+                    <h2>Instrumental Revolution (1950-1990)</h2>
+                    <div class="timeline-item">
+                        <div class="timeline-year">1950s-1960s</div>
+                        <h3>Spectroscopic Techniques</h3>
+                        <p>NMR spectroscopy harnessed nuclear spin to reveal molecular structures, while IR, UV-Vis, and mass spectrometry brought unprecedented analytical precision.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">1960s-1970s</div>
+                        <h3>Chromatography Advances</h3>
+                        <p>GC-MS and HPLC transformed separation science, allowing chemists to isolate, identify, and quantify complex mixtures with remarkable sensitivity.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">1970s-1980s</div>
+                        <h3>X-ray Crystallography</h3>
+                        <p>X-ray crystallography unveiled 3D structures of biomolecules, highlighted by Dorothy Hodgkin's determinations of vitamin B₁₂ and penicillin.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Slide 11: Modern Innovations -->
+            <div class="slide">
+                <div class="slide-content">
+                    <h2>Modern Chemical Innovations (1990-Present)</h2>
+                    <div class="modern-innovations">
+                        <div class="innovation-card">
+                            <div class="innovation-icon">🔬</div>
+                            <h3>Nanotechnology</h3>
+                            <p>Engineered at the nanoscale, carbon nanotubes, graphene, and quantum dots exhibit unique properties, unlocking breakthroughs in electronics, medicine, and energy.</p>
+                        </div>
+                        <div class="innovation-card">
+                            <div class="innovation-icon">🌱</div>
+                            <h3>Green Chemistry</h3>
+                            <p>Guided by 12 principles—from atom economy to renewable feedstocks—green chemistry minimizes environmental impact while maximizing process efficiency.</p>
+                        </div>
+                        <div class="innovation-card">
+                            <div class="innovation-icon">💻</div>
+                            <h3>Computational Chemistry</h3>
+                            <p>Leveraging density functional theory and molecular modeling, computational chemistry predicts molecular behavior and reaction pathways in silico.</p>
+                        </div>
+                        <div class="innovation-card">
+                            <div class="innovation-icon">🧬</div>
+                            <h3>Biochemistry Integration</h3>
+                            <p>Integration of chemistry and biology drives advances in enzyme catalysis, protein folding, and DNA engineering, culminating in tools like CRISPR.</p>
+                        </div>
+                    </div>
+                    <div class="dna-helix">
+                        <div class="helix-strand strand1"></div>
+                        <div class="helix-strand strand2"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Slide 12: Conclusion -->
+            <div class="slide">
+                <div class="slide-content">
+                    <h2>Chemistry Today and Tomorrow</h2>
+                    <p>Modern chemistry continues to evolve with emerging fields and technologies:</p>
+                    <div class="timeline-item">
+                        <h3>Current Frontiers</h3>
+                        <p>Innovations in smart materials, superconductors, and biomimetic composites are reshaping materials science; next-gen solar cells, fuel cells, and hydrogen technologies are transforming energy; precision drug design and targeted delivery are revolutionizing medicine; and carbon capture, pollution remediation, and sustainable catalysis are safeguarding our planet.</p>
+                    </div>
+                    <h3 style="margin-top: 2rem; color: #667eea;">The adventure continues...</h3>
+                </div>
+            </div>
+            <!-- Slide 13: Video Slide -->
+            <div class="slide">
+                <div class="slide-content">
+                    <h2>Special Feature: Chem's Plan</h2>
+                    <p>Watch the video below for an amazing and fantastic and beautiful and great chemistry music video!</p>
+                    <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:600px;margin:0 auto;border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,0.2);background:#222;">
+                        <iframe src="https://drive.google.com/file/d/1ukzMdUVCL-Z2Jr4q-FHtOHZpBmHBrj7f/preview" allow="autoplay; encrypted-media" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;border-radius:20px;"></iframe>
+                    </div>
+                    <p style="font-size: 1rem; color: #888; margin-top: 1rem;">If the video does not play, <a href="https://drive.google.com/file/d/1ukzMdUVCL-Z2Jr4q-FHtOHZpBmHBrj7f/view?usp=sharing" target="_blank" rel="noopener">click here to view or download Chem's Plan.MOV</a>.</p>
+                </div>
+            </div>
+            <div class="navigation">
+                <button class="nav-btn" id="prev-btn" onclick="changeSlide(-1)">← Previous</button>
+                <button class="nav-btn" id="next-btn" onclick="changeSlide(1)">Next →</button>
+            </div>
         </div>
     </div>
     <script>
